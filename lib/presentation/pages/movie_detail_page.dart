@@ -1,5 +1,6 @@
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
@@ -8,6 +9,15 @@ class MovieDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String formattedReleaseDate = '';
+    if (movie.releaseDate != null) {
+      final dateFormat = DateFormat('dd/MM/yyyy');
+      formattedReleaseDate =
+          dateFormat.format(DateTime.parse(movie.releaseDate!));
+    } else {
+      formattedReleaseDate = 'Data não disponível';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title ?? 'Detalhes do Filme'),
@@ -33,7 +43,7 @@ class MovieDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Data de Lançamento: ${movie.releaseDate ?? 'Data não disponível'}',
+                'Data de Lançamento: $formattedReleaseDate',
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 8),
