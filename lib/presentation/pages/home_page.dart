@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.only(left: 10),
+                        padding: const EdgeInsets.only(left: 14),
                         child: const Text(
                           'Os Mais Populares',
                           textAlign: TextAlign.left,
