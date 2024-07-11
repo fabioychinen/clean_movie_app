@@ -1,5 +1,6 @@
-import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:clean_movie_app/domain/entities/movie.dart';
+import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
 
 class CardMovieWidget extends StatelessWidget {
   final Movie movie;
@@ -10,13 +11,17 @@ class CardMovieWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double voteAverage = movie.voteAverage ?? 0;
 
-    return Container(
-      padding: const EdgeInsets.all(7),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(6),
-        focusColor: const Color.fromARGB(24, 158, 158, 158),
-        highlightColor: const Color.fromARGB(24, 158, 158, 158),
-        onTap: () {},
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MovieDetailPage(movie: movie),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(7),
         child: SizedBox(
           width: 120,
           child: Column(
@@ -43,16 +48,16 @@ class CardMovieWidget extends StatelessWidget {
                       alignment: Alignment.center,
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 30,
+                          height: 30,
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.6),
                             shape: BoxShape.circle,
                           ),
                         ),
                         SizedBox(
-                          width: 40,
-                          height: 40,
+                          width: 28,
+                          height: 28,
                           child: CircularProgressIndicator(
                             value: voteAverage / 10,
                             backgroundColor: Colors.black12,
@@ -64,7 +69,7 @@ class CardMovieWidget extends StatelessWidget {
                         Text(
                           '${(voteAverage * 10).toStringAsFixed(0)}%',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

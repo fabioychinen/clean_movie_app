@@ -19,12 +19,14 @@ dependencies:
   flutter_localization: ^0.2.0
   equatable: ^2.0.5
 
+
  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  bloc_test: ^9.1.7  
+  mocktail: ^1.0.4
   flutter_lints: ^4.0.0
   build_runner: ^2.4.9
   injectable_generator: ^2.6.1
