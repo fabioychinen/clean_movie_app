@@ -19,12 +19,9 @@ class MovieRemoteDataSource {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();
       } else {
-        print(
-            'Failed to load popular movies - Status Code: ${response.statusCode}');
         throw Exception('Failed to load popular movies');
       }
     } catch (e) {
-      print('Error loading popular movies: $e');
       throw Exception('Failed to load popular movies');
     }
   }
@@ -37,12 +34,9 @@ class MovieRemoteDataSource {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();
       } else {
-        print(
-            'Failed to load free to watch movies - Status Code: ${response.statusCode}');
         throw Exception('Failed to load free to watch movies');
       }
     } catch (e) {
-      print('Error loading free to watch movies: $e');
       throw Exception('Failed to load free to watch movies');
     }
   }

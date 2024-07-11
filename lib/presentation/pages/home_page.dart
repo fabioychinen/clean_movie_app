@@ -70,8 +70,8 @@ class HomePage extends StatelessWidget {
         itemCount: movies.length,
         itemBuilder: (BuildContext context, int index) {
           final movie = movies[index];
-          return GestureDetector(
-            onTap: () {
+          return MaterialButton(
+            onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
