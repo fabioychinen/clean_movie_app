@@ -21,18 +21,24 @@ class MovieApp extends StatelessWidget {
       create: (context) => MovieBloc(
         getPopularMovies: getPopularMovies,
         getFreeToWatchMovies: getFreeToWatchMovies,
-      )
-        ..add(FetchPopularMovies())
-        ..add(FetchFreeToWatchMovies()),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Movie App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: const HomePage(),
-      ),
+      )..add(FetchPopularMovies()),
+      child: _buildMaterialApp(),
+    );
+  }
+
+  Widget _buildMaterialApp() {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Movie App',
+      theme: _buildThemeData(),
+      home: const HomePage(),
+    );
+  }
+
+  ThemeData _buildThemeData() {
+    return ThemeData(
+      primarySwatch: Colors.blue,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
 }

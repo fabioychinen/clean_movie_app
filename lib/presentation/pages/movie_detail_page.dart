@@ -9,106 +9,135 @@ class MovieDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedReleaseDate = '';
-    if (movie.releaseDate != null) {
-      final dateFormat = DateFormat('dd/MM/yyyy');
-      formattedReleaseDate =
-          dateFormat.format(DateTime.parse(movie.releaseDate!));
-    } else {
-      formattedReleaseDate = 'Data não disponível';
-    }
-
-    double voteAverage = movie.voteAverage ?? 0;
+    final String formattedReleaseDate = _getFormattedReleaseDate(movie.releaseDate);
+    final double voteAverage = movie.voteAverage ?? 0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(movie.title ?? 'Detalhes do Filme'),
-      ),
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (movie.posterPath != null)
-                Center(
-                  child: Image.network(
-                    'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                    height: 400,
-                  ),
-                ),
+              _buildPosterImage(),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Data de Lançamento:',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                        Text(
-                          formattedReleaseDate,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Positioned(
-                    bottom: -20,
-                    left: 8,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: CircularProgressIndicator(
-                            value: voteAverage / 10,
-                            backgroundColor: Colors.black12,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              _getVoteColor(voteAverage),
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '${(voteAverage * 10).toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              _buildReleaseAndRating(formattedReleaseDate, voteAverage),
               const SizedBox(height: 16),
-              const Text(
-                'Sinopse:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              _buildSynopsisTitle(),
               const SizedBox(height: 8),
-              Text(
-                movie.overview ?? 'Sinopse não disponível',
-                style: const TextStyle(fontSize: 16),
-              ),
+              _buildSynopsis(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(movie.title ?? 'Detalhes do Filme'),
+    );
+  }
+
+  Widget _buildPosterImage() {
+    if (movie.posterPath == null) return const SizedBox.shrink();
+
+    return Center(
+      child: Image.network(
+        'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+        height: 400,
+      ),
+    );
+  }
+
+  Widget _buildReleaseAndRating(String formattedReleaseDate, double voteAverage) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildReleaseInfo(formattedReleaseDate),
+        ),
+        const SizedBox(width: 16),
+        _buildRatingBadge(voteAverage),
+      ],
+    );
+  }
+
+  Widget _buildReleaseInfo(String formattedReleaseDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Data de Lançamento:',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+        Text(
+          formattedReleaseDate,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRatingBadge(double voteAverage) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(
+            value: voteAverage / 10,
+            backgroundColor: Colors.black12,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              _getVoteColor(voteAverage),
+            ),
+          ),
+        ),
+        Text(
+          '${(voteAverage * 10).toStringAsFixed(0)}%',
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSynopsisTitle() {
+    return const Text(
+      'Sinopse:',
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildSynopsis() {
+    return Text(
+      movie.overview ?? 'Sinopse não disponível',
+      style: const TextStyle(fontSize: 16),
+    );
+  }
+
+  String _getFormattedReleaseDate(String? releaseDate) {
+    if (releaseDate == null) {
+      return 'Data não disponível';
+    }
+    try {
+      final dateFormat = DateFormat('dd/MM/yyyy');
+      return dateFormat.format(DateTime.parse(releaseDate));
+    } catch (_) {
+      return 'Data inválida';
+    }
   }
 
   Color _getVoteColor(double vote) {

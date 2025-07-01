@@ -15,30 +15,21 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
     required this.getPopularMovies,
     required this.getFreeToWatchMovies,
   }) : super(MovieLoading()) {
-    on<FetchPopularMovies>((event, emit) async {
-      emit(MovieLoading());
-      try {
-        final popularMovies = await getPopularMovies();
-        final freeToWatchMovies = await getFreeToWatchMovies();
-        emit(MovieLoaded(
-            popularMovies: popularMovies,
-            freeToWatchMovies: freeToWatchMovies));
-      } catch (e) {
-        emit(MovieError(message: e.toString()));
-      }
-    });
+    on<FetchPopularMovies>(_onFetchMovies);
+    on<FetchFreeToWatchMovies>(_onFetchMovies);
+  }
 
-    on<FetchFreeToWatchMovies>((event, emit) async {
-      emit(MovieLoading());
-      try {
-        final popularMovies = await getPopularMovies();
-        final freeToWatchMovies = await getFreeToWatchMovies();
-        emit(MovieLoaded(
-            popularMovies: popularMovies,
-            freeToWatchMovies: freeToWatchMovies));
-      } catch (e) {
-        emit(MovieError(message: e.toString()));
-      }
-    });
+  Future<void> _onFetchMovies(MovieEvent event, Emitter<MovieState> emit) async {
+    emit(MovieLoading());
+    try {
+      final popularMovies = await getPopularMovies();
+      final freeToWatchMovies = await getFreeToWatchMovies();
+      emit(MovieLoaded(
+        popularMovies: popularMovies,
+        freeToWatchMovies: freeToWatchMovies,
+      ));
+    } catch (e) {
+      emit(MovieError(message: e.toString()));
+    }
   }
 }
