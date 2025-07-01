@@ -1,20 +1,22 @@
 import 'dart:convert';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:http/http.dart' as http;
+import '../../config/env.dart';
 
 class MovieRemoteDataSource {
   final http.Client client;
-  final String apiKey = '88efd5107320ab503dcd9aae2c475996';
-  final String _baseUrl = "https://api.themoviedb.org/3";
-  final String _key = "?api_key=88efd5107320ab503dcd9aae2c475996";
-  String get fetchPopular => "$_baseUrl/movie/popular$_key";
-  String get fetchFreeToWatch => "$_baseUrl/movie/now_playing$_key";
 
   MovieRemoteDataSource({required this.client});
+
+  String get _key => '?api_key=${Env.apiKey}';
+  String get _baseUrl => Env.baseUrl;
+
+  String get fetchPopular => '$_baseUrl/movie/popular$_key';
+  String get fetchFreeToWatch => '$_baseUrl/movie/now_playing$_key';
+
   Future<List<Movie>> getPopularMovies() async {
     try {
       final response = await client.get(Uri.parse(fetchPopular));
-
       if (response.statusCode == 200) {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();
@@ -29,7 +31,6 @@ class MovieRemoteDataSource {
   Future<List<Movie>> getFreeToWatchMovies() async {
     try {
       final response = await client.get(Uri.parse(fetchFreeToWatch));
-
       if (response.statusCode == 200) {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();

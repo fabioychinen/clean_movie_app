@@ -1,13 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:http/http.dart' as http;
-
-const String apiKey = '88efd5107320ab503dcd9aae2c475996';
-const String _baseUrl = "https://api.themoviedb.org/3";
-const String _key = "?api_key=$apiKey";
-String get fetchPopular => "$_baseUrl/movie/popular$_key";
+import 'package:clean_movie_app/config/env.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
+
+String get fetchPopular => "${Env.baseUrl}/movie/popular?api_key=${Env.apiKey}";
 
 void main() {
   late MockHttpClient mockClient;
