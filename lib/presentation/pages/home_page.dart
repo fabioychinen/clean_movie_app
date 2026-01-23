@@ -5,7 +5,7 @@ import 'package:clean_movie_app/presentation/widgets/card_movie_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../config/core_strings.dart';
+import '../../config/constants/core_strings.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: const Text('Filmes e Séries'),
+      title: const Text(CoreStrings.movieAndSeries),
     );
   }
 

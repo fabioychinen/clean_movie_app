@@ -1,6 +1,6 @@
 class CoreStrings{
   static const String movieApp = 'Movie App';
-  static const String movieAppTitle = 'Filmes e Séries';
+  static const String movieAndSeries = 'Filmes e Séries';
   static const String popularMoviesSection = 'Os Mais Populares';
   static const String freeToWatchSection = 'Grátis Para Assistir';
   static const String loadingIndicatorLabel = 'Carregando...';

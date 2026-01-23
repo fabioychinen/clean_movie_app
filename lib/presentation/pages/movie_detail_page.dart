@@ -2,7 +2,7 @@ import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../config/core_strings.dart';
+import '../../config/constants/core_strings.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
