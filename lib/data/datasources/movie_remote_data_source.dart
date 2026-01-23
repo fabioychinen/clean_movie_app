@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:clean_movie_app/config/core_strings.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:http/http.dart' as http;
 import '../../config/env.dart';
@@ -21,10 +22,10 @@ class MovieRemoteDataSource {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load popular movies');
+        throw Exception(CoreStrings.fetchPopularMoviesError);
       }
     } catch (e) {
-      throw Exception('Failed to load popular movies');
+      throw Exception(CoreStrings.fetchPopularMoviesError);
     }
   }
 
@@ -35,10 +36,10 @@ class MovieRemoteDataSource {
         final List<dynamic> results = json.decode(response.body)['results'];
         return results.map((json) => Movie.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load free to watch movies');
+        throw Exception(CoreStrings.fetchFreeToWatchMoviesError);
       }
     } catch (e) {
-      throw Exception('Failed to load free to watch movies');
+      throw Exception(CoreStrings.fetchFreeToWatchMoviesError);
     }
   }
 }

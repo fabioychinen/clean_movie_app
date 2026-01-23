@@ -5,6 +5,8 @@ import 'package:clean_movie_app/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../config/core_strings.dart';
+
 class MovieApp extends StatelessWidget {
   final GetPopularMovies getPopularMovies;
   final GetFreeToWatchMovies getFreeToWatchMovies;
@@ -29,7 +31,7 @@ class MovieApp extends StatelessWidget {
   Widget _buildMaterialApp() {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Movie App',
+      title: CoreStrings.movieApp,
       theme: _buildThemeData(),
       home: const HomePage(),
     );

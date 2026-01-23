@@ -5,6 +5,8 @@ import 'package:clean_movie_app/presentation/widgets/card_movie_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../config/core_strings.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -46,9 +48,9 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle('Os Mais Populares', leftPadding: 14),
+              _buildSectionTitle(CoreStrings.popularMoviesSection, leftPadding: 14),
               _buildMovieList(state.popularMovies, context),
-              _buildSectionTitle('Grátis Para Assistir', leftPadding: 10, bottomPadding: 10),
+              _buildSectionTitle(CoreStrings.freeToWatchSection, leftPadding: 10, bottomPadding: 10),
               _buildMovieList(state.freeToWatchMovies, context),
             ],
           ),
@@ -103,6 +105,6 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildUnknown() {
-    return const Center(child: Text('Unknown state'));
+    return const Center(child: Text(CoreStrings.unknownErrorMessage));
   }
 }

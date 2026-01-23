@@ -2,6 +2,8 @@ import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../config/core_strings.dart';
+
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
 
@@ -36,7 +38,7 @@ class MovieDetailPage extends StatelessWidget {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(movie.title ?? 'Detalhes do Filme'),
+      title: Text(movie.title ?? CoreStrings.movieDetails),
     );
   }
 
@@ -68,7 +70,7 @@ class MovieDetailPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Data de Lançamento:',
+          CoreStrings.releaseDate,
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
         Text(
@@ -116,27 +118,27 @@ class MovieDetailPage extends StatelessWidget {
 
   Widget _buildSynopsisTitle() {
     return const Text(
-      'Sinopse:',
+      CoreStrings.synopsisTitle,
       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     );
   }
 
   Widget _buildSynopsis() {
     return Text(
-      movie.overview ?? 'Sinopse não disponível',
+      movie.overview ?? CoreStrings.noSynopsisAvailable,
       style: const TextStyle(fontSize: 16),
     );
   }
 
   String _getFormattedReleaseDate(String? releaseDate) {
     if (releaseDate == null) {
-      return 'Data não disponível';
+      return CoreStrings.unavailableDate;
     }
     try {
       final dateFormat = DateFormat('dd/MM/yyyy');
       return dateFormat.format(DateTime.parse(releaseDate));
     } catch (_) {
-      return 'Data inválida';
+      return CoreStrings.invalidDate;
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:clean_movie_app/config/core_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
@@ -117,7 +118,7 @@ class CardMovieWidget extends StatelessWidget {
 
   Widget _buildTitle() {
     return Text(
-      movie.title ?? 'Título não disponível',
+      movie.title ?? CoreStrings.unavailableTitle,
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 12),
       maxLines: 2,
