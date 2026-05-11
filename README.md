@@ -4,7 +4,7 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 - Listagem de filmes e séries do catálogo TMDB  
 - Exibição de rating para cada item  
@@ -16,7 +16,7 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
 
 ---
 
-## ⚙️ Tecnologias e Pacotes Utilizados
+## Tecnologias e Pacotes Utilizados
 
 - [Flutter](https://flutter.dev/)
 - [BLoC](https://bloclibrary.dev/)
@@ -28,7 +28,7 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
 
 ---
 
-## 🚀 Como rodar o projeto
+## Como rodar o projeto
 
 1. Clone o repositório  
     ```bash
@@ -47,7 +47,7 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
 
 ---
 
-## 🧪 Testes
+## Testes
 
 Para rodar os testes (utilizando mocktail para simular APIs):
 
