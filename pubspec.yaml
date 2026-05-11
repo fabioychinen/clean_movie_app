@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none' 
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.4.0-282.3.beta <4.0.0'
@@ -13,10 +13,10 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.6
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ^9.1.1
   http: ^1.2.1
   intl: ^0.20.2
-  flutter_localization: ^0.2.0
+  flutter_localization: ^0.3.3
   equatable: ^2.0.5
 
 
@@ -25,9 +25,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  bloc_test: ^9.1.7  
+  bloc_test: ^10.0.0  
   mocktail: ^1.0.4
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.9
   injectable_generator: ^2.6.1
   build_config: ^1.1.1
