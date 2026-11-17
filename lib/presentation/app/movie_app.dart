@@ -19,10 +19,11 @@ class MovieApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MovieBloc>(
-      create: (context) => MovieBloc(
-        getPopularMovies: getPopularMovies,
-        getFreeToWatchMovies: getFreeToWatchMovies,
-      )..add(const FetchMovies()),
+      create:
+          (context) => MovieBloc(
+            getPopularMovies: getPopularMovies,
+            getFreeToWatchMovies: getFreeToWatchMovies,
+          )..add(const FetchMovies()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: CoreStrings.movieApp,

@@ -7,7 +7,6 @@ sealed class MovieEvent extends Equatable {
   List<Object> get props => [];
 }
 
-/// Carrega as duas vitrines da home (populares e grátis).
 final class FetchMovies extends MovieEvent {
   const FetchMovies();
 }

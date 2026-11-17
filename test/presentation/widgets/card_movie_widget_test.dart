@@ -12,11 +12,13 @@ void main() {
     Movie movie, {
     VoidCallback? onTap,
   }) {
-    return tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CardMovieWidget(movie: movie, onTap: onTap ?? () {}),
+    return tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardMovieWidget(movie: movie, onTap: onTap ?? () {}),
+        ),
       ),
-    ));
+    );
   }
 
   testWidgets('mostra título, pôster e nota', (tester) async {

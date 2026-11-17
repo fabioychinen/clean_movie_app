@@ -13,8 +13,10 @@ void main() {
     MovieRemoteDataSource(client: http.Client(), config: config),
   );
 
-  runApp(MovieApp(
-    getPopularMovies: GetPopularMovies(movieRepository),
-    getFreeToWatchMovies: GetFreeToWatchMovies(movieRepository),
-  ));
+  runApp(
+    MovieApp(
+      getPopularMovies: GetPopularMovies(movieRepository),
+      getFreeToWatchMovies: GetFreeToWatchMovies(movieRepository),
+    ),
+  );
 }

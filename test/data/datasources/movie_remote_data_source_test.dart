@@ -26,37 +26,64 @@ void main() {
   });
 
   void respondWith(String body, int statusCode) {
-    when(() => client.get(any()))
-        .thenAnswer((_) async => http.Response(body, statusCode));
+    when(
+      () => client.get(any(), headers: any(named: 'headers')),
+    ).thenAnswer((_) async => http.Response(body, statusCode));
   }
 
   Matcher throwsFetchException({Matcher cause = anything}) => throwsA(
-        isA<MovieFetchException>().having((e) => e.cause, 'cause', cause),
-      );
+    isA<MovieFetchException>().having((e) => e.cause, 'cause', cause),
+  );
 
   group('sucesso', () {
-    setUp(() => respondWith(
-          json.encode({
-            'results': [tmdbMovieJson()]
-          }),
-          200,
-        ));
+    setUp(
+      () => respondWith(
+        json.encode({
+          'results': [tmdbMovieJson()],
+        }),
+        200,
+      ),
+    );
 
-    test('getPopularMovies chama /movie/popular com a chave e converte', () async {
+    (Uri, Map<String, String>) capturedRequest() {
+      final captured =
+          verify(
+            () =>
+                client.get(captureAny(), headers: captureAny(named: 'headers')),
+          ).captured;
+      return (captured[0] as Uri, captured[1] as Map<String, String>);
+    }
+
+    test('getPopularMovies chama /movie/popular em pt-BR e converte', () async {
       final movies = await dataSource.getPopularMovies();
 
       expect(movies, [inception]);
-      final uri = verify(() => client.get(captureAny())).captured.single as Uri;
-      expect(uri.toString(),
-          'https://api.test/3/movie/popular?api_key=test-key');
+      final (uri, _) = capturedRequest();
+      expect(uri.path, '/3/movie/popular');
+      expect(uri.queryParameters, {'language': 'pt-BR', 'region': 'BR'});
     });
 
-    test('getFreeToWatchMovies chama /movie/now_playing', () async {
+    test('autentica pelo header, sem chave na URL', () async {
+      await dataSource.getPopularMovies();
+
+      final (uri, headers) = capturedRequest();
+      expect(headers['Authorization'], 'Bearer test-token');
+      expect(uri.queryParameters.keys, isNot(contains('api_key')));
+    });
+
+    test('getFreeToWatchMovies filtra filmes grátis no Brasil', () async {
       final movies = await dataSource.getFreeToWatchMovies();
 
       expect(movies, [inception]);
-      final uri = verify(() => client.get(captureAny())).captured.single as Uri;
-      expect(uri.path, '/3/movie/now_playing');
+      final (uri, _) = capturedRequest();
+      expect(uri.path, '/3/discover/movie');
+      expect(uri.queryParameters, {
+        'language': 'pt-BR',
+        'region': 'BR',
+        'watch_region': 'BR',
+        'with_watch_monetization_types': 'free',
+        'sort_by': 'popularity.desc',
+      });
     });
   });
 
@@ -68,8 +95,9 @@ void main() {
     });
 
     test('timeout, preservando a causa', () {
-      when(() => client.get(any()))
-          .thenAnswer((_) => Completer<http.Response>().future);
+      when(
+        () => client.get(any(), headers: any(named: 'headers')),
+      ).thenAnswer((_) => Completer<http.Response>().future);
 
       expect(
         dataSource.getPopularMovies(),
@@ -78,8 +106,9 @@ void main() {
     });
 
     test('falha de rede, preservando a causa', () {
-      when(() => client.get(any()))
-          .thenThrow(http.ClientException('sem conexão'));
+      when(
+        () => client.get(any(), headers: any(named: 'headers')),
+      ).thenThrow(http.ClientException('sem conexão'));
 
       expect(
         dataSource.getPopularMovies(),
@@ -109,8 +138,8 @@ void main() {
       respondWith(
         json.encode({
           'results': [
-            {'title': 42}
-          ]
+            {'title': 42},
+          ],
         }),
         200,
       );

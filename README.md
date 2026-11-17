@@ -39,7 +39,7 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
     ```bash
     flutter pub get
     ```
-3. Crie o `env.json` a partir do modelo e preencha sua API Key do TMDB (o arquivo é ignorado pelo git)  
+3. Crie o `env.json` a partir do modelo e preencha seu **token de leitura da API** da TMDB (em *Configurações → API → API Read Access Token*; o arquivo é ignorado pelo git)  
     ```bash
     cp env.example.json env.json
     ```

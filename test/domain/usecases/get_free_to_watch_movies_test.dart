@@ -16,15 +16,17 @@ void main() {
   });
 
   test('retorna os filmes grátis do repositório', () async {
-    when(() => repository.getFreeToWatchMovies())
-        .thenAnswer((_) async => [inception]);
+    when(
+      () => repository.getFreeToWatchMovies(),
+    ).thenAnswer((_) async => [inception]);
 
     expect(await getFreeToWatchMovies(), [inception]);
   });
 
   test('propaga MovieFetchException', () {
-    when(() => repository.getFreeToWatchMovies())
-        .thenThrow(const MovieFetchException('falhou'));
+    when(
+      () => repository.getFreeToWatchMovies(),
+    ).thenThrow(const MovieFetchException('falhou'));
 
     expect(() => getFreeToWatchMovies(), throwsA(isA<MovieFetchException>()));
   });

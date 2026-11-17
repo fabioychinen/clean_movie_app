@@ -17,24 +17,41 @@ class MovieRemoteDataSource {
     required http.Client client,
     required AppConfig config,
     Duration timeout = ApiConstants.requestTimeout,
-  })  : _client = client,
-        _config = config,
-        _timeout = timeout;
+  }) : _client = client,
+       _config = config,
+       _timeout = timeout;
 
-  /// Lança [MovieFetchException].
   Future<List<Movie>> getPopularMovies() => _fetchMovies('/movie/popular');
 
-  /// Lança [MovieFetchException].
-  Future<List<Movie>> getFreeToWatchMovies() =>
-      _fetchMovies('/movie/now_playing');
+  Future<List<Movie>> getFreeToWatchMovies() => _fetchMovies(
+    '/discover/movie',
+    query: {
+      'watch_region': ApiConstants.tmdbRegion,
+      'with_watch_monetization_types': 'free',
+      'sort_by': 'popularity.desc',
+    },
+  );
 
-  Future<List<Movie>> _fetchMovies(String path) async {
-    final uri = Uri.parse('${_config.tmdbBaseUrl}$path')
-        .replace(queryParameters: {'api_key': _config.tmdbApiKey});
+  Future<List<Movie>> _fetchMovies(
+    String path, {
+    Map<String, String> query = const {},
+  }) async {
+    final uri = Uri.parse('${_config.tmdbBaseUrl}$path').replace(
+      queryParameters: {
+        'language': ApiConstants.tmdbLanguage,
+        'region': ApiConstants.tmdbRegion,
+        ...query,
+      },
+    );
 
     final http.Response response;
     try {
-      response = await _client.get(uri).timeout(_timeout);
+      response = await _client
+          .get(
+            uri,
+            headers: {'Authorization': 'Bearer ${_config.tmdbReadAccessToken}'},
+          )
+          .timeout(_timeout);
     } on TimeoutException catch (e) {
       throw MovieFetchException('Timeout em $path', cause: e);
     } on http.ClientException catch (e) {

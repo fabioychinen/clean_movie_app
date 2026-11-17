@@ -18,9 +18,9 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
   MovieBloc({
     required GetPopularMovies getPopularMovies,
     required GetFreeToWatchMovies getFreeToWatchMovies,
-  })  : _getPopularMovies = getPopularMovies,
-        _getFreeToWatchMovies = getFreeToWatchMovies,
-        super(const MovieLoading()) {
+  }) : _getPopularMovies = getPopularMovies,
+       _getFreeToWatchMovies = getFreeToWatchMovies,
+       super(const MovieLoading()) {
     on<FetchMovies>(_onFetchMovies);
   }
 
@@ -32,13 +32,13 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
     try {
       final popularMovies = await _getPopularMovies();
       final freeToWatchMovies = await _getFreeToWatchMovies();
-      emit(MovieLoaded(
-        popularMovies: popularMovies,
-        freeToWatchMovies: freeToWatchMovies,
-      ));
+      emit(
+        MovieLoaded(
+          popularMovies: popularMovies,
+          freeToWatchMovies: freeToWatchMovies,
+        ),
+      );
     } on MovieFetchException catch (e, stackTrace) {
-      // Só a falha esperada vira estado de erro; qualquer outra exceção é
-      // bug e deve explodir alto pelo onError do Bloc.
       developer.log(
         'Falha ao buscar filmes',
         name: 'MovieBloc',

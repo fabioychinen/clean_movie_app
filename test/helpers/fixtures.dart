@@ -2,7 +2,7 @@ import 'package:clean_movie_app/config/app_config.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 
 const testConfig = AppConfig(
-  tmdbApiKey: 'test-key',
+  tmdbReadAccessToken: 'test-token',
   tmdbBaseUrl: 'https://api.test/3',
 );
 
@@ -14,10 +14,8 @@ final inception = Movie(
   overview: 'A mind-bending thriller.',
 );
 
-/// Filme só com os campos obrigatórios (pôster, data e sinopse ausentes).
 const sparseMovie = Movie(title: 'Sem Dados', voteAverage: 3.5);
 
-/// Item de `results` exatamente como a TMDB devolve.
 Map<String, Object?> tmdbMovieJson({
   String title = 'Inception',
   num voteAverage = 8.8,

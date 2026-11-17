@@ -18,12 +18,14 @@ void main() {
 
   Future<void> pumpHome(WidgetTester tester, MovieState state) {
     when(() => bloc.state).thenReturn(state);
-    return tester.pumpWidget(MaterialApp(
-      home: BlocProvider<MovieBloc>.value(
-        value: bloc,
-        child: const HomePage(),
+    return tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider<MovieBloc>.value(
+          value: bloc,
+          child: const HomePage(),
+        ),
       ),
-    ));
+    );
   }
 
   testWidgets('mostra o indicador durante o carregamento', (tester) async {

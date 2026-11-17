@@ -1,17 +1,15 @@
-# Clique Way, Cap. 14 — Deixa as Ferramentas Julgarem: o analyzer é o anjo
-# guardião; o que puder ser verificado aqui não depende do olho do revisor.
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
   language:
-    strict-casts: true      # sem conversão implícita de dynamic (JSON da API)
-    strict-inference: true  # sem dynamic inferido silenciosamente
-    strict-raw-types: true  # sem List/Map/Future sem tipo
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
 
 linter:
   rules:
     - always_declare_return_types
-    - avoid_catches_without_on_clauses  # Cap. 11: capture apenas o que sabe tratar
+    - avoid_catches_without_on_clauses
     - avoid_dynamic_calls
     - only_throw_errors
     - prefer_final_fields

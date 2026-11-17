@@ -16,14 +16,17 @@ void main() {
   });
 
   test('retorna os filmes populares do repositório', () async {
-    when(() => repository.getPopularMovies()).thenAnswer((_) async => [inception]);
+    when(
+      () => repository.getPopularMovies(),
+    ).thenAnswer((_) async => [inception]);
 
     expect(await getPopularMovies(), [inception]);
   });
 
   test('propaga MovieFetchException', () {
-    when(() => repository.getPopularMovies())
-        .thenThrow(const MovieFetchException('falhou'));
+    when(
+      () => repository.getPopularMovies(),
+    ).thenThrow(const MovieFetchException('falhou'));
 
     expect(() => getPopularMovies(), throwsA(isA<MovieFetchException>()));
   });

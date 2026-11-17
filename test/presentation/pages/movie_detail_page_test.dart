@@ -8,9 +8,7 @@ import '../../helpers/fixtures.dart';
 
 void main() {
   Future<void> pumpPage(WidgetTester tester, Movie movie) {
-    return tester.pumpWidget(
-      MaterialApp(home: MovieDetailPage(movie: movie)),
-    );
+    return tester.pumpWidget(MaterialApp(home: MovieDetailPage(movie: movie)));
   }
 
   testWidgets('mostra os detalhes do filme', (tester) async {
@@ -23,8 +21,9 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
   });
 
-  testWidgets('mostra os textos de ausência para campos opcionais',
-      (tester) async {
+  testWidgets('mostra os textos de ausência para campos opcionais', (
+    tester,
+  ) async {
     await pumpPage(tester, sparseMovie);
 
     expect(find.text(CoreStrings.unavailableDate), findsOneWidget);

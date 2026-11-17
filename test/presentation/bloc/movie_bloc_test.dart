@@ -18,9 +18,9 @@ void main() {
   });
 
   MovieBloc buildBloc() => MovieBloc(
-        getPopularMovies: getPopularMovies,
-        getFreeToWatchMovies: getFreeToWatchMovies,
-      );
+    getPopularMovies: getPopularMovies,
+    getFreeToWatchMovies: getFreeToWatchMovies,
+  );
 
   test('estado inicial é MovieLoading', () {
     expect(buildBloc().state, const MovieLoading());
@@ -34,24 +34,30 @@ void main() {
     },
     build: buildBloc,
     act: (bloc) => bloc.add(const FetchMovies()),
-    expect: () => [
-      const MovieLoading(),
-      MovieLoaded(popularMovies: [inception], freeToWatchMovies: [sparseMovie]),
-    ],
+    expect:
+        () => [
+          const MovieLoading(),
+          MovieLoaded(
+            popularMovies: [inception],
+            freeToWatchMovies: [sparseMovie],
+          ),
+        ],
   );
 
   blocTest<MovieBloc, MovieState>(
     'FetchMovies emite [Loading, Error] quando a busca falha',
     setUp: () {
-      when(() => getPopularMovies())
-          .thenThrow(const MovieFetchException('HTTP 500'));
+      when(
+        () => getPopularMovies(),
+      ).thenThrow(const MovieFetchException('HTTP 500'));
     },
     build: buildBloc,
     act: (bloc) => bloc.add(const FetchMovies()),
-    expect: () => [
-      const MovieLoading(),
-      const MovieError(message: CoreStrings.fetchMoviesError),
-    ],
+    expect:
+        () => [
+          const MovieLoading(),
+          const MovieError(message: CoreStrings.fetchMoviesError),
+        ],
   );
 
   blocTest<MovieBloc, MovieState>(

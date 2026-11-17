@@ -14,11 +14,14 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(CoreStrings.movieAndSeries)),
       body: BlocBuilder<MovieBloc, MovieState>(
-        builder: (context, state) => switch (state) {
-          MovieLoading() => const Center(child: CircularProgressIndicator()),
-          MovieLoaded() => _buildContent(context, state),
-          MovieError(:final message) => Center(child: Text(message)),
-        },
+        builder:
+            (context, state) => switch (state) {
+              MovieLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              MovieLoaded() => _buildContent(context, state),
+              MovieError(:final message) => Center(child: Text(message)),
+            },
       ),
     );
   }
@@ -31,11 +34,16 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(CoreStrings.popularMoviesSection,
-                  leftPadding: 14),
+              _buildSectionTitle(
+                CoreStrings.popularMoviesSection,
+                leftPadding: 14,
+              ),
               _buildMovieList(context, state.popularMovies),
-              _buildSectionTitle(CoreStrings.freeToWatchSection,
-                  leftPadding: 10, bottomPadding: 10),
+              _buildSectionTitle(
+                CoreStrings.freeToWatchSection,
+                leftPadding: 10,
+                bottomPadding: 10,
+              ),
               _buildMovieList(context, state.freeToWatchMovies),
             ],
           ),

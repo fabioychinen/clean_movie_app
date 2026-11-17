@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Selo circular com a nota em porcentagem (8.8 → "88%").
 class RatingBadge extends StatelessWidget {
-  /// Nota de 0 a 10.
   final double voteAverage;
 
   const RatingBadge({super.key, required this.voteAverage});

@@ -15,14 +15,17 @@ void main() {
   });
 
   test('getPopularMovies delega ao data source', () async {
-    when(() => dataSource.getPopularMovies()).thenAnswer((_) async => [inception]);
+    when(
+      () => dataSource.getPopularMovies(),
+    ).thenAnswer((_) async => [inception]);
 
     expect(await repository.getPopularMovies(), [inception]);
   });
 
   test('getFreeToWatchMovies delega ao data source', () async {
-    when(() => dataSource.getFreeToWatchMovies())
-        .thenAnswer((_) async => [inception]);
+    when(
+      () => dataSource.getFreeToWatchMovies(),
+    ).thenAnswer((_) async => [inception]);
 
     expect(await repository.getFreeToWatchMovies(), [inception]);
   });
