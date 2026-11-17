@@ -1,113 +1,124 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:clean_movie_app/data/datasources/movie_remote_data_source.dart';
+import 'package:clean_movie_app/domain/errors/movie_fetch_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 
-class MockHttpClient extends Mock implements http.Client {}
+import '../../helpers/fixtures.dart';
+import '../../helpers/mocks.dart';
 
 void main() {
+  late MockHttpClient client;
   late MovieRemoteDataSource dataSource;
-  late MockHttpClient mockHttpClient;
+
+  setUpAll(() => registerFallbackValue(Uri()));
 
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = MovieRemoteDataSource(client: mockHttpClient);
+    client = MockHttpClient();
+    dataSource = MovieRemoteDataSource(
+      client: client,
+      config: testConfig,
+      timeout: const Duration(milliseconds: 50),
+    );
   });
 
-  group('getPopularMovies', () {
-    test(
-        'returns a list of popular movies if the http call completes successfully',
-        () async {
-      final mockResponse = {
-        'results': [
-          {
-            'poster_path': '/poster_path_1.jpg',
-            'release_date': '2023-06-15',
-            'title': 'Movie 1',
-            'vote_average': 8.0,
-            'overview': 'Overview of Movie 1',
-          },
-          {
-            'poster_path': '/poster_path_2.jpg',
-            'release_date': '2023-07-20',
-            'title': 'Movie 2',
-            'vote_average': 7.5,
-            'overview': 'Overview of Movie 2',
-          },
-        ]
-      };
+  void respondWith(String body, int statusCode) {
+    when(() => client.get(any()))
+        .thenAnswer((_) async => http.Response(body, statusCode));
+  }
 
-      when(() => mockHttpClient
-              .get(Uri.parse(any(that: contains('/movie/popular')))))
-          .thenAnswer(
-              (_) async => http.Response(json.encode(mockResponse), 200));
+  Matcher throwsFetchException({Matcher cause = anything}) => throwsA(
+        isA<MovieFetchException>().having((e) => e.cause, 'cause', cause),
+      );
 
-      final result = await dataSource.getPopularMovies();
+  group('sucesso', () {
+    setUp(() => respondWith(
+          json.encode({
+            'results': [tmdbMovieJson()]
+          }),
+          200,
+        ));
 
-      expect(
-          result.map((movie) => movie.title), equals(['Movie 1', 'Movie 2']));
-      verify(() => mockHttpClient
-          .get(Uri.parse(any(that: contains('/movie/popular'))))).called(1);
+    test('getPopularMovies chama /movie/popular com a chave e converte', () async {
+      final movies = await dataSource.getPopularMovies();
+
+      expect(movies, [inception]);
+      final uri = verify(() => client.get(captureAny())).captured.single as Uri;
+      expect(uri.toString(),
+          'https://api.test/3/movie/popular?api_key=test-key');
     });
 
-    test('throws an exception if the http call completes with an error',
-        () async {
-      when(() => mockHttpClient
-              .get(Uri.parse(any(that: contains('/movie/popular')))))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+    test('getFreeToWatchMovies chama /movie/now_playing', () async {
+      final movies = await dataSource.getFreeToWatchMovies();
 
-      expect(() => dataSource.getPopularMovies(), throwsException);
-      verify(() => mockHttpClient
-          .get(Uri.parse(any(that: contains('/movie/popular'))))).called(1);
+      expect(movies, [inception]);
+      final uri = verify(() => client.get(captureAny())).captured.single as Uri;
+      expect(uri.path, '/3/movie/now_playing');
     });
   });
 
-  group('getFreeToWatchMovies', () {
-    test(
-        'returns a list of free to watch movies if the http call completes successfully',
-        () async {
-      final mockResponse = {
-        'results': [
-          {
-            'poster_path': '/poster_path_1.jpg',
-            'release_date': '2023-06-15',
-            'title': 'Movie 1',
-            'vote_average': 8.0,
-            'overview': 'Overview of Movie 1',
-          },
-          {
-            'poster_path': '/poster_path_2.jpg',
-            'release_date': '2023-07-20',
-            'title': 'Movie 2',
-            'vote_average': 7.5,
-            'overview': 'Overview of Movie 2',
-          },
-        ]
-      };
+  group('falhas viram MovieFetchException', () {
+    test('status diferente de 200', () {
+      respondWith('Not Found', 404);
 
-      when(() => mockHttpClient
-              .get(Uri.parse(any(that: contains('/movie/now_playing')))))
-          .thenAnswer(
-              (_) async => http.Response(json.encode(mockResponse), 200));
-
-      final result = await dataSource.getFreeToWatchMovies();
-
-      expect(
-          result.map((movie) => movie.title), equals(['Movie 1', 'Movie 2']));
-      verify(() => mockHttpClient
-          .get(Uri.parse(any(that: contains('/movie/now_playing'))))).called(1);
+      expect(dataSource.getPopularMovies(), throwsFetchException());
     });
 
-    test('throws an exception if the http call completes with an error',
-        () async {
-      when(() => mockHttpClient
-              .get(Uri.parse(any(that: contains('/movie/now_playing')))))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+    test('timeout, preservando a causa', () {
+      when(() => client.get(any()))
+          .thenAnswer((_) => Completer<http.Response>().future);
 
-      expect(() => dataSource.getFreeToWatchMovies(), throwsException);
-      verify(() => mockHttpClient
-          .get(Uri.parse(any(that: contains('/movie/now_playing'))))).called(1);
+      expect(
+        dataSource.getPopularMovies(),
+        throwsFetchException(cause: isA<TimeoutException>()),
+      );
+    });
+
+    test('falha de rede, preservando a causa', () {
+      when(() => client.get(any()))
+          .thenThrow(http.ClientException('sem conexão'));
+
+      expect(
+        dataSource.getPopularMovies(),
+        throwsFetchException(cause: isA<http.ClientException>()),
+      );
+    });
+
+    test('corpo que não é JSON', () {
+      respondWith('<html>', 200);
+
+      expect(
+        dataSource.getPopularMovies(),
+        throwsFetchException(cause: isA<FormatException>()),
+      );
+    });
+
+    test('JSON sem "results"', () {
+      respondWith(json.encode({'page': 1}), 200);
+
+      expect(
+        dataSource.getPopularMovies(),
+        throwsFetchException(cause: isA<FormatException>()),
+      );
+    });
+
+    test('filme malformado dentro de "results"', () {
+      respondWith(
+        json.encode({
+          'results': [
+            {'title': 42}
+          ]
+        }),
+        200,
+      );
+
+      expect(
+        dataSource.getPopularMovies(),
+        throwsFetchException(cause: isA<FormatException>()),
+      );
     });
   });
 }

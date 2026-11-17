@@ -2,11 +2,9 @@ import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/domain/repositories/movie_repository.dart';
 
 class GetPopularMovies {
-  final MovieRepository repository;
+  final MovieRepository _repository;
 
-  GetPopularMovies(this.repository);
+  const GetPopularMovies(this._repository);
 
-  Future<List<Movie>> call() async {
-    return await repository.getPopularMovies();
-  }
+  Future<List<Movie>> call() => _repository.getPopularMovies();
 }

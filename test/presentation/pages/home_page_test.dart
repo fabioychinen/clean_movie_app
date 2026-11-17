@@ -1,5 +1,5 @@
-import 'package:clean_movie_app/domain/entities/movie.dart';
-import 'package:clean_movie_app/presentation/bloc/bloc/movie_bloc.dart';
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+import 'package:clean_movie_app/presentation/bloc/movie_bloc.dart';
 import 'package:clean_movie_app/presentation/pages/home_page.dart';
 import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
 import 'package:clean_movie_app/presentation/widgets/card_movie_widget.dart';
@@ -8,93 +8,57 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockMovieBloc extends Mock implements MovieBloc {}
+import '../../helpers/fixtures.dart';
+import '../../helpers/mocks.dart';
 
 void main() {
-  late MockMovieBloc movieBloc;
+  late MockMovieBloc bloc;
 
-  setUp(() {
-    movieBloc = MockMovieBloc();
-  });
+  setUp(() => bloc = MockMovieBloc());
 
-  Widget makeTestableWidget({required Widget child}) {
-    return MaterialApp(
-      home: BlocProvider.value(
-        value: movieBloc,
-        child: child,
+  Future<void> pumpHome(WidgetTester tester, MovieState state) {
+    when(() => bloc.state).thenReturn(state);
+    return tester.pumpWidget(MaterialApp(
+      home: BlocProvider<MovieBloc>.value(
+        value: bloc,
+        child: const HomePage(),
       ),
-    );
+    ));
   }
 
-  testWidgets('HomePage displays loading indicator when loading',
-      (WidgetTester tester) async {
-    when(() => movieBloc.state).thenReturn(MovieLoading());
-
-    await tester.pumpWidget(makeTestableWidget(child: const HomePage()));
+  testWidgets('mostra o indicador durante o carregamento', (tester) async {
+    await pumpHome(tester, const MovieLoading());
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('HomePage displays movie lists when loaded',
-      (WidgetTester tester) async {
-    final movies = [
-      Movie(
-        posterPath: '/poster_path_1.jpg',
-        releaseDate: '2023-06-15',
-        title: 'Movie 1',
-        voteAverage: 8.0,
-        overview: 'Overview of Movie 1',
+  testWidgets('mostra as duas seções quando carregado', (tester) async {
+    await pumpHome(
+      tester,
+      MovieLoaded(
+        popularMovies: [inception, sparseMovie],
+        freeToWatchMovies: [inception],
       ),
-      Movie(
-        posterPath: '/poster_path_2.jpg',
-        releaseDate: '2023-07-20',
-        title: 'Movie 2',
-        voteAverage: 7.5,
-        overview: 'Overview of Movie 2',
-      ),
-    ];
-
-    when(() => movieBloc.state).thenReturn(MovieLoaded(
-      popularMovies: movies,
-      freeToWatchMovies: movies,
-    ));
-
-    await tester.pumpWidget(makeTestableWidget(child: const HomePage()));
-
-    expect(find.text('Os Mais Populares'), findsOneWidget);
-    expect(find.text('Grátis Para Assistir'), findsOneWidget);
-    expect(find.byType(CardMovieWidget), findsNWidgets(movies.length * 2));
-  });
-
-  testWidgets('HomePage displays error message on error state',
-      (WidgetTester tester) async {
-    when(() => movieBloc.state)
-        .thenReturn(MovieError(message: 'Failed to load movies'));
-
-    await tester.pumpWidget(makeTestableWidget(child: const HomePage()));
-
-    expect(find.text('Failed to load movies'), findsOneWidget);
-  });
-
-  testWidgets('Tapping movie navigates to MovieDetailPage',
-      (WidgetTester tester) async {
-    final movie = Movie(
-      posterPath: '/poster_path_1.jpg',
-      releaseDate: '2023-06-15',
-      title: 'Movie 1',
-      voteAverage: 8.0,
-      overview: 'Overview of Movie 1',
     );
 
-    when(() => movieBloc.state).thenReturn(MovieLoaded(
-      popularMovies: [movie],
-      freeToWatchMovies: [movie],
-    ));
+    expect(find.text(CoreStrings.popularMoviesSection), findsOneWidget);
+    expect(find.text(CoreStrings.freeToWatchSection), findsOneWidget);
+    expect(find.byType(CardMovieWidget), findsNWidgets(3));
+  });
 
-    await tester.pumpWidget(makeTestableWidget(child: const HomePage()));
+  testWidgets('mostra a mensagem do estado de erro', (tester) async {
+    await pumpHome(tester, const MovieError(message: 'Deu ruim'));
 
-    await tester.tap(find.byType(CardMovieWidget).first);
+    expect(find.text('Deu ruim'), findsOneWidget);
+  });
 
+  testWidgets('tocar no card abre a página de detalhes', (tester) async {
+    await pumpHome(
+      tester,
+      MovieLoaded(popularMovies: [inception], freeToWatchMovies: const []),
+    );
+
+    await tester.tap(find.byType(CardMovieWidget));
     await tester.pumpAndSettle();
 
     expect(find.byType(MovieDetailPage), findsOneWidget);

@@ -1,27 +1,25 @@
-import 'package:clean_movie_app/config/core/constants/core_strings.dart';
-import 'package:clean_movie_app/config/core/utils/image_url_builder.dart';
-import 'package:flutter/material.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
-import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
+import 'package:clean_movie_app/presentation/widgets/movie_poster.dart';
+import 'package:clean_movie_app/presentation/widgets/rating_badge.dart';
+import 'package:flutter/material.dart';
 
 class CardMovieWidget extends StatelessWidget {
   final Movie movie;
+  final VoidCallback onTap;
 
-  const CardMovieWidget({super.key, required this.movie});
+  const CardMovieWidget({super.key, required this.movie, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final double voteAverage = movie.voteAverage ?? 0;
-
-    return GestureDetector(
-      onTap: () => _navigateToDetail(context),
-      child: Container(
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
         padding: const EdgeInsets.all(7),
         child: SizedBox(
           width: 120,
           child: Column(
             children: [
-              _buildPosterWithRating(voteAverage),
+              _buildPosterWithRating(),
               const SizedBox(height: 25),
               _buildTitle(),
             ],
@@ -31,109 +29,32 @@ class CardMovieWidget extends StatelessWidget {
     );
   }
 
-  void _navigateToDetail(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MovieDetailPage(movie: movie),
-      ),
-    );
-  }
-
-  Widget _buildPosterWithRating(double voteAverage) {
+  Widget _buildPosterWithRating() {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        _buildPosterImage(),
-        _buildRatingBadge(voteAverage),
+        MoviePoster(
+          posterPath: movie.posterPath,
+          height: 180,
+          width: 120,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        Positioned(
+          bottom: -20,
+          left: 8,
+          child: RatingBadge(voteAverage: movie.voteAverage),
+        ),
       ],
-    );
-  }
-
-  Widget _buildPosterImage() {
-    return Container(
-      height: 180,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        image: DecorationImage(
-          image: NetworkImage(
-            ImageUrlBuilder.tmdb(movie.posterPath),
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRatingBadge(double voteAverage) {
-    return Positioned(
-      bottom: -20,
-      left: 8,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          _buildRatingCircleBackground(),
-          _buildRatingProgress(voteAverage),
-          _buildRatingText(voteAverage),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRatingCircleBackground() {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6 * 255),
-        shape: BoxShape.circle,
-      ),
-    );
-  }
-
-  Widget _buildRatingProgress(double voteAverage) {
-    return SizedBox(
-      width: 28,
-      height: 28,
-      child: CircularProgressIndicator(
-        value: voteAverage / 10,
-        backgroundColor: Colors.black12,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          _getVoteColor(voteAverage),
-        ),
-        strokeWidth: 3,
-      ),
-    );
-  }
-
-  Widget _buildRatingText(double voteAverage) {
-    return Text(
-      '${(voteAverage * 10).toStringAsFixed(0)}%',
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
     );
   }
 
   Widget _buildTitle() {
     return Text(
-      movie.title ?? CoreStrings.unavailableTitle,
+      movie.title,
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 12),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
-  }
-
-  Color _getVoteColor(double vote) {
-    if (vote >= 7.0) {
-      return Colors.green;
-    } else if (vote >= 4.0) {
-      return Colors.yellow;
-    } else {
-      return Colors.red;
-    }
   }
 }

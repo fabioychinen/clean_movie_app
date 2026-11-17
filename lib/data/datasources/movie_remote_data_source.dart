@@ -1,45 +1,58 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+
+import 'package:clean_movie_app/config/app_config.dart';
+import 'package:clean_movie_app/config/core/constants/api_constants.dart';
+import 'package:clean_movie_app/data/models/movie_json.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
+import 'package:clean_movie_app/domain/errors/movie_fetch_exception.dart';
 import 'package:http/http.dart' as http;
-import '../../config/env.dart';
 
 class MovieRemoteDataSource {
-  final http.Client client;
+  final http.Client _client;
+  final AppConfig _config;
+  final Duration _timeout;
 
-  MovieRemoteDataSource({required this.client});
+  MovieRemoteDataSource({
+    required http.Client client,
+    required AppConfig config,
+    Duration timeout = ApiConstants.requestTimeout,
+  })  : _client = client,
+        _config = config,
+        _timeout = timeout;
 
-  String get _key => '?api_key=${Env.apiKey}';
-  String get _baseUrl => Env.baseUrl;
+  /// Lança [MovieFetchException].
+  Future<List<Movie>> getPopularMovies() => _fetchMovies('/movie/popular');
 
-  String get fetchPopular => '$_baseUrl/movie/popular$_key';
-  String get fetchFreeToWatch => '$_baseUrl/movie/now_playing$_key';
+  /// Lança [MovieFetchException].
+  Future<List<Movie>> getFreeToWatchMovies() =>
+      _fetchMovies('/movie/now_playing');
 
-  Future<List<Movie>> getPopularMovies() async {
+  Future<List<Movie>> _fetchMovies(String path) async {
+    final uri = Uri.parse('${_config.tmdbBaseUrl}$path')
+        .replace(queryParameters: {'api_key': _config.tmdbApiKey});
+
+    final http.Response response;
     try {
-      final response = await client.get(Uri.parse(fetchPopular));
-      if (response.statusCode == 200) {
-        final List<dynamic> results = json.decode(response.body)['results'];
-        return results.map((json) => Movie.fromJson(json)).toList();
-      } else {
-        throw Exception(CoreStrings.fetchPopularMoviesError);
-      }
-    } catch (e) {
-      throw Exception(CoreStrings.fetchPopularMoviesError);
+      response = await _client.get(uri).timeout(_timeout);
+    } on TimeoutException catch (e) {
+      throw MovieFetchException('Timeout em $path', cause: e);
+    } on http.ClientException catch (e) {
+      throw MovieFetchException('Falha de rede em $path', cause: e);
     }
-  }
 
-  Future<List<Movie>> getFreeToWatchMovies() async {
+    if (response.statusCode != 200) {
+      throw MovieFetchException('HTTP ${response.statusCode} em $path');
+    }
+
     try {
-      final response = await client.get(Uri.parse(fetchFreeToWatch));
-      if (response.statusCode == 200) {
-        final List<dynamic> results = json.decode(response.body)['results'];
-        return results.map((json) => Movie.fromJson(json)).toList();
-      } else {
-        throw Exception(CoreStrings.fetchFreeToWatchMoviesError);
+      final Object? body = json.decode(response.body);
+      if (body case {'results': final List<Object?> results}) {
+        return results.map(movieFromJson).toList();
       }
-    } catch (e) {
-      throw Exception(CoreStrings.fetchFreeToWatchMoviesError);
+      throw const FormatException('Resposta sem a lista "results"');
+    } on FormatException catch (e) {
+      throw MovieFetchException('Resposta inválida em $path', cause: e);
     }
   }
 }

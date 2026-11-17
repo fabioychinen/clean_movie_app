@@ -1,11 +1,10 @@
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
 import 'package:clean_movie_app/domain/usecases/get_free_to_watch_movies.dart';
 import 'package:clean_movie_app/domain/usecases/get_popular_movies.dart';
-import 'package:clean_movie_app/presentation/bloc/bloc/movie_bloc.dart';
+import 'package:clean_movie_app/presentation/bloc/movie_bloc.dart';
 import 'package:clean_movie_app/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../config/core/constants/core_strings.dart';
 
 class MovieApp extends StatelessWidget {
   final GetPopularMovies getPopularMovies;
@@ -23,24 +22,16 @@ class MovieApp extends StatelessWidget {
       create: (context) => MovieBloc(
         getPopularMovies: getPopularMovies,
         getFreeToWatchMovies: getFreeToWatchMovies,
-      )..add(FetchPopularMovies()),
-      child: _buildMaterialApp(),
-    );
-  }
-
-  Widget _buildMaterialApp() {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: CoreStrings.movieApp,
-      theme: _buildThemeData(),
-      home: const HomePage(),
-    );
-  }
-
-  ThemeData _buildThemeData() {
-    return ThemeData(
-      primarySwatch: Colors.blue,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
+      )..add(const FetchMovies()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: CoreStrings.movieApp,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const HomePage(),
+      ),
     );
   }
 }

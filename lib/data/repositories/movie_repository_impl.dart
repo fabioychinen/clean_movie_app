@@ -3,17 +3,14 @@ import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/domain/repositories/movie_repository.dart';
 
 class MovieRepositoryImpl implements MovieRepository {
-  final MovieRemoteDataSource dataSource;
+  final MovieRemoteDataSource _dataSource;
 
-  MovieRepositoryImpl(this.dataSource);
-
-  @override
-  Future<List<Movie>> getPopularMovies() async {
-    return await dataSource.getPopularMovies();
-  }
+  const MovieRepositoryImpl(this._dataSource);
 
   @override
-  Future<List<Movie>> getFreeToWatchMovies() async {
-    return await dataSource.getFreeToWatchMovies();
-  }
+  Future<List<Movie>> getPopularMovies() => _dataSource.getPopularMovies();
+
+  @override
+  Future<List<Movie>> getFreeToWatchMovies() =>
+      _dataSource.getFreeToWatchMovies();
 }

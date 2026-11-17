@@ -1,9 +1,9 @@
-import 'package:clean_movie_app/config/core/utils/image_url_builder.dart';
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
+import 'package:clean_movie_app/presentation/widgets/movie_poster.dart';
+import 'package:clean_movie_app/presentation/widgets/rating_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import '../../config/core/constants/core_strings.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
@@ -12,24 +12,35 @@ class MovieDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String formattedReleaseDate = _getFormattedReleaseDate(movie.releaseDate);
-    final double voteAverage = movie.voteAverage ?? 0;
-
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: AppBar(title: Text(movie.title)),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPosterImage(),
+              Center(
+                child: MoviePoster(posterPath: movie.posterPath, height: 400),
+              ),
               const SizedBox(height: 16),
-              _buildReleaseAndRating(formattedReleaseDate, voteAverage),
+              Row(
+                children: [
+                  Expanded(child: _buildReleaseInfo()),
+                  const SizedBox(width: 16),
+                  RatingBadge(voteAverage: movie.voteAverage),
+                ],
+              ),
               const SizedBox(height: 16),
-              _buildSynopsisTitle(),
+              const Text(
+                CoreStrings.synopsisTitle,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              _buildSynopsis(),
+              Text(
+                movie.overview ?? CoreStrings.noSynopsisAvailable,
+                style: const TextStyle(fontSize: 16),
+              ),
             ],
           ),
         ),
@@ -37,36 +48,8 @@ class MovieDetailPage extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: Text(movie.title ?? CoreStrings.movieDetails),
-    );
-  }
-
-  Widget _buildPosterImage() {
-    if (movie.posterPath == null) return const SizedBox.shrink();
-
-    return Center(
-      child: Image.network(
-        ImageUrlBuilder.tmdb(movie.posterPath),
-        height: 400,
-      ),
-    );
-  }
-
-  Widget _buildReleaseAndRating(String formattedReleaseDate, double voteAverage) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildReleaseInfo(formattedReleaseDate),
-        ),
-        const SizedBox(width: 16),
-        _buildRatingBadge(voteAverage),
-      ],
-    );
-  }
-
-  Widget _buildReleaseInfo(String formattedReleaseDate) {
+  Widget _buildReleaseInfo() {
+    final releaseDate = movie.releaseDate;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,81 +58,12 @@ class MovieDetailPage extends StatelessWidget {
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
         Text(
-          formattedReleaseDate,
+          releaseDate == null
+              ? CoreStrings.unavailableDate
+              : DateFormat('dd/MM/yyyy').format(releaseDate),
           style: const TextStyle(fontSize: 16),
         ),
       ],
     );
-  }
-
-  Widget _buildRatingBadge(double voteAverage) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.6 * 255),
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(
-          width: 28,
-          height: 28,
-          child: CircularProgressIndicator(
-            value: voteAverage / 10,
-            backgroundColor: Colors.black12,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              _getVoteColor(voteAverage),
-            ),
-          ),
-        ),
-        Text(
-          '${(voteAverage * 10).toStringAsFixed(0)}%',
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSynopsisTitle() {
-    return const Text(
-      CoreStrings.synopsisTitle,
-      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildSynopsis() {
-    return Text(
-      movie.overview ?? CoreStrings.noSynopsisAvailable,
-      style: const TextStyle(fontSize: 16),
-    );
-  }
-
-  String _getFormattedReleaseDate(String? releaseDate) {
-    if (releaseDate == null) {
-      return CoreStrings.unavailableDate;
-    }
-    try {
-      final dateFormat = DateFormat('dd/MM/yyyy');
-      return dateFormat.format(DateTime.parse(releaseDate));
-    } catch (_) {
-      return CoreStrings.invalidDate;
-    }
-  }
-
-  Color _getVoteColor(double vote) {
-    if (vote >= 7.0) {
-      return Colors.green;
-    } else if (vote >= 4.0) {
-      return Colors.yellow;
-    } else {
-      return Colors.red;
-    }
   }
 }

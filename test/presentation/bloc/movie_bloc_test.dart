@@ -1,125 +1,67 @@
-import 'package:clean_movie_app/domain/entities/movie.dart';
-import 'package:clean_movie_app/domain/usecases/get_free_to_watch_movies.dart';
-import 'package:clean_movie_app/domain/usecases/get_popular_movies.dart';
-import 'package:clean_movie_app/presentation/bloc/bloc/movie_bloc.dart';
-
+import 'package:bloc_test/bloc_test.dart';
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+import 'package:clean_movie_app/domain/errors/movie_fetch_exception.dart';
+import 'package:clean_movie_app/presentation/bloc/movie_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetPopularMovies extends Mock implements GetPopularMovies {}
-
-class MockGetFreeToWatchMovies extends Mock implements GetFreeToWatchMovies {}
+import '../../helpers/fixtures.dart';
+import '../../helpers/mocks.dart';
 
 void main() {
-  late MovieBloc movieBloc;
-  late MockGetPopularMovies mockGetPopularMovies;
-  late MockGetFreeToWatchMovies mockGetFreeToWatchMovies;
+  late MockGetPopularMovies getPopularMovies;
+  late MockGetFreeToWatchMovies getFreeToWatchMovies;
 
   setUp(() {
-    mockGetPopularMovies = MockGetPopularMovies();
-    mockGetFreeToWatchMovies = MockGetFreeToWatchMovies();
-    movieBloc = MovieBloc(
-      getPopularMovies: mockGetPopularMovies,
-      getFreeToWatchMovies: mockGetFreeToWatchMovies,
-    );
+    getPopularMovies = MockGetPopularMovies();
+    getFreeToWatchMovies = MockGetFreeToWatchMovies();
   });
 
-  tearDown(() {
-    movieBloc.close();
-  });
-
-  test('initial state should be MovieLoading', () {
-    expect(movieBloc.state, MovieLoading());
-  });
-
-  group('FetchPopularMovies event', () {
-    final popularMovies = [
-      Movie(
-        posterPath: '/poster_path_1.jpg',
-        releaseDate: '2023-06-15',
-        title: 'Movie 1',
-        voteAverage: 8.0,
-        overview: 'Overview of Movie 1',
-      ),
-    ];
-
-    test('emits [MovieLoading, MovieLoaded] when successful', () async {
-      when(() => mockGetPopularMovies()).thenAnswer((_) async => popularMovies);
-
-      movieBloc.add(FetchPopularMovies());
-      await untilCalled(() => mockGetPopularMovies());
-
-      verify(() => mockGetPopularMovies()).called(1);
-      expect(
-        movieBloc.stream,
-        emitsInOrder([
-          MovieLoading(),
-          MovieLoaded(
-              popularMovies: popularMovies, freeToWatchMovies: const []),
-          emitsDone
-        ]),
+  MovieBloc buildBloc() => MovieBloc(
+        getPopularMovies: getPopularMovies,
+        getFreeToWatchMovies: getFreeToWatchMovies,
       );
-    });
 
-    test('emits [MovieLoading, MovieError] when unsuccessful', () async {
-      const errorMessage = 'Failed to load popular movies';
-      when(() => mockGetPopularMovies()).thenThrow(Exception(errorMessage));
-
-      movieBloc.add(FetchPopularMovies());
-      await untilCalled(() => mockGetPopularMovies());
-
-      verify(() => mockGetPopularMovies()).called(1);
-      expect(
-        movieBloc.stream,
-        emitsInOrder(
-            [MovieLoading(), MovieError(message: errorMessage), emitsDone]),
-      );
-    });
+  test('estado inicial é MovieLoading', () {
+    expect(buildBloc().state, const MovieLoading());
   });
 
-  group('FetchFreeToWatchMovies event', () {
-    final freeToWatchMovies = [
-      Movie(
-        posterPath: '/poster_path_2.jpg',
-        releaseDate: '2023-07-20',
-        title: 'Movie 2',
-        voteAverage: 7.5,
-        overview: 'Overview of Movie 2',
-      ),
-    ];
+  blocTest<MovieBloc, MovieState>(
+    'FetchMovies emite [Loading, Loaded] com as duas listas',
+    setUp: () {
+      when(() => getPopularMovies()).thenAnswer((_) async => [inception]);
+      when(() => getFreeToWatchMovies()).thenAnswer((_) async => [sparseMovie]);
+    },
+    build: buildBloc,
+    act: (bloc) => bloc.add(const FetchMovies()),
+    expect: () => [
+      const MovieLoading(),
+      MovieLoaded(popularMovies: [inception], freeToWatchMovies: [sparseMovie]),
+    ],
+  );
 
-    test('emits [MovieLoading, MovieLoaded] when successful', () async {
-      when(() => mockGetFreeToWatchMovies())
-          .thenAnswer((_) async => freeToWatchMovies);
+  blocTest<MovieBloc, MovieState>(
+    'FetchMovies emite [Loading, Error] quando a busca falha',
+    setUp: () {
+      when(() => getPopularMovies())
+          .thenThrow(const MovieFetchException('HTTP 500'));
+    },
+    build: buildBloc,
+    act: (bloc) => bloc.add(const FetchMovies()),
+    expect: () => [
+      const MovieLoading(),
+      const MovieError(message: CoreStrings.fetchMoviesError),
+    ],
+  );
 
-      movieBloc.add(FetchFreeToWatchMovies());
-      await untilCalled(() => mockGetFreeToWatchMovies());
-
-      verify(() => mockGetFreeToWatchMovies()).called(1);
-      expect(
-        movieBloc.stream,
-        emitsInOrder([
-          MovieLoading(),
-          MovieLoaded(
-              popularMovies: const [], freeToWatchMovies: freeToWatchMovies),
-          emitsDone
-        ]),
-      );
-    });
-
-    test('emits [MovieLoading, MovieError] when unsuccessful', () async {
-      const errorMessage = 'Failed to load free to watch movies';
-      when(() => mockGetFreeToWatchMovies()).thenThrow(Exception(errorMessage));
-
-      movieBloc.add(FetchFreeToWatchMovies());
-      await untilCalled(() => mockGetFreeToWatchMovies());
-
-      verify(() => mockGetFreeToWatchMovies()).called(1);
-      expect(
-        movieBloc.stream,
-        emitsInOrder(
-            [MovieLoading(), MovieError(message: errorMessage), emitsDone]),
-      );
-    });
-  });
+  blocTest<MovieBloc, MovieState>(
+    'erro inesperado (bug) não vira estado de erro: explode pelo onError',
+    setUp: () {
+      when(() => getPopularMovies()).thenThrow(StateError('bug'));
+    },
+    build: buildBloc,
+    act: (bloc) => bloc.add(const FetchMovies()),
+    expect: () => [const MovieLoading()],
+    errors: () => [isA<StateError>()],
+  );
 }

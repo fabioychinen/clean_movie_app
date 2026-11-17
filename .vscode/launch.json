@@ -7,19 +7,22 @@
         {
             "name": "clean_movie_app",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": ["--dart-define-from-file=env.json"]
         },
         {
             "name": "clean_movie_app (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args": ["--dart-define-from-file=env.json"]
         },
         {
             "name": "clean_movie_app (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": ["--dart-define-from-file=env.json"]
         }
     ]
 }

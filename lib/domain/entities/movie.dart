@@ -1,25 +1,25 @@
-class Movie {
+import 'package:equatable/equatable.dart';
+
+class Movie extends Equatable {
+  final String title;
+
+  /// Nota de 0 a 10, como a TMDB publica.
+  final double voteAverage;
+
+  /// Os campos abaixo podem faltar na TMDB; `null` significa "não informado".
   final String? posterPath;
-  final String? releaseDate;
-  final String? title;
-  final double? voteAverage;
+  final DateTime? releaseDate;
   final String? overview;
 
-  Movie({
+  const Movie({
+    required this.title,
+    required this.voteAverage,
     this.posterPath,
     this.releaseDate,
-    this.title,
-    this.voteAverage,
     this.overview,
   });
 
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return Movie(
-      posterPath: json['poster_path'],
-      releaseDate: json['release_date'],
-      title: json['title'],
-      voteAverage: (json['vote_average'] as num?)?.toDouble(),
-      overview: json['overview'],
-    );
-  }
+  @override
+  List<Object?> get props =>
+      [title, voteAverage, posterPath, releaseDate, overview];
 }

@@ -39,11 +39,15 @@ Aplicativo Flutter para exibição de catálogos de filmes e séries, consumindo
     ```bash
     flutter pub get
     ```
-3. Adicione sua API Key do TMDB em um arquivo `.env` ou conforme orientação do código  
-4. Rode o app  
+3. Crie o `env.json` a partir do modelo e preencha sua API Key do TMDB (o arquivo é ignorado pelo git)  
     ```bash
-    flutter run
+    cp env.example.json env.json
     ```
+4. Rode o app passando a configuração  
+    ```bash
+    flutter run --dart-define-from-file=env.json
+    ```
+    No VS Code, as configurações de `.vscode/launch.json` já passam esse argumento. Sem a chave, o app falha logo na inicialização com uma mensagem explicando o que falta.
 
 ---
 
