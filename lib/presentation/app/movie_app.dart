@@ -5,7 +5,7 @@ import 'package:clean_movie_app/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../config/constants/core_strings.dart';
+import '../../config/core/constants/core_strings.dart';
 
 class MovieApp extends StatelessWidget {
   final GetPopularMovies getPopularMovies;

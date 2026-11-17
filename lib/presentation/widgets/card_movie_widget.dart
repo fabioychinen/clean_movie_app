@@ -1,4 +1,5 @@
-import 'package:clean_movie_app/config/constants/core_strings.dart';
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+import 'package:clean_movie_app/config/core/utils/image_url_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
@@ -56,7 +57,7 @@ class CardMovieWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         image: DecorationImage(
           image: NetworkImage(
-            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+            ImageUrlBuilder.tmdb(movie.posterPath),
           ),
           fit: BoxFit.cover,
         ),

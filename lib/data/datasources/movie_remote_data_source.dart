@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:clean_movie_app/config/constants/core_strings.dart';
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:http/http.dart' as http;
 import '../../config/env.dart';

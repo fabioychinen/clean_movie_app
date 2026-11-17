@@ -1,8 +1,9 @@
+import 'package:clean_movie_app/config/core/utils/image_url_builder.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../config/constants/core_strings.dart';
+import '../../config/core/constants/core_strings.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
@@ -47,7 +48,7 @@ class MovieDetailPage extends StatelessWidget {
 
     return Center(
       child: Image.network(
-        'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+        ImageUrlBuilder.tmdb(movie.posterPath),
         height: 400,
       ),
     );
