@@ -1,4 +1,6 @@
 import 'package:clean_movie_app/data/repositories/movie_repository_impl.dart';
+import 'package:clean_movie_app/domain/entities/movie.dart';
+import 'package:clean_movie_app/domain/entities/movie_list_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -14,19 +16,30 @@ void main() {
     repository = MovieRepositoryImpl(dataSource);
   });
 
-  test('getPopularMovies delega ao data source', () async {
+  test('getMovieList delega ao data source', () async {
     when(
-      () => dataSource.getPopularMovies(),
+      () => dataSource.getMovieList(MovieListType.topRated),
     ).thenAnswer((_) async => [inception]);
 
-    expect(await repository.getPopularMovies(), [inception]);
+    expect(await repository.getMovieList(MovieListType.topRated), [inception]);
   });
 
-  test('getFreeToWatchMovies delega ao data source', () async {
+  test('getMovieDetails delega ao data source', () async {
     when(
-      () => dataSource.getFreeToWatchMovies(),
+      () => dataSource.getMovieDetails(const MovieId(27205)),
+    ).thenAnswer((_) async => inceptionDetails);
+
+    expect(
+      await repository.getMovieDetails(const MovieId(27205)),
+      inceptionDetails,
+    );
+  });
+
+  test('searchMovies delega ao data source', () async {
+    when(
+      () => dataSource.searchMovies('inception'),
     ).thenAnswer((_) async => [inception]);
 
-    expect(await repository.getFreeToWatchMovies(), [inception]);
+    expect(await repository.searchMovies('inception'), [inception]);
   });
 }

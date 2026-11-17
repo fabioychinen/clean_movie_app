@@ -1,8 +1,9 @@
 import 'package:clean_movie_app/config/core/constants/core_strings.dart';
-import 'package:clean_movie_app/domain/entities/movie.dart';
-import 'package:clean_movie_app/presentation/bloc/movie_bloc.dart';
+import 'package:clean_movie_app/domain/entities/movie_list_type.dart';
+import 'package:clean_movie_app/presentation/bloc/home/home_bloc.dart';
 import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
-import 'package:clean_movie_app/presentation/widgets/card_movie_widget.dart';
+import 'package:clean_movie_app/presentation/pages/search_page.dart';
+import 'package:clean_movie_app/presentation/widgets/movie_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,86 +13,67 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(CoreStrings.movieAndSeries)),
-      body: BlocBuilder<MovieBloc, MovieState>(
-        builder:
-            (context, state) => switch (state) {
-              MovieLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              MovieLoaded() => _buildContent(context, state),
-              MovieError(:final message) => Center(child: Text(message)),
-            },
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context, MovieLoaded state) {
-    return SingleChildScrollView(
-      child: Container(
-        margin: const EdgeInsets.only(left: 5, top: 50),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSectionTitle(
-                CoreStrings.popularMoviesSection,
-                leftPadding: 14,
-              ),
-              _buildMovieList(context, state.popularMovies),
-              _buildSectionTitle(
-                CoreStrings.freeToWatchSection,
-                leftPadding: 10,
-                bottomPadding: 10,
-              ),
-              _buildMovieList(context, state.freeToWatchMovies),
-            ],
+      appBar: AppBar(
+        title: const Text(CoreStrings.movieAndSeries),
+        actions: [
+          IconButton(
+            tooltip: CoreStrings.search,
+            icon: const Icon(Icons.search),
+            onPressed: () => SearchPage.open(context),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildSectionTitle(
-    String title, {
-    double leftPadding = 0,
-    double bottomPadding = 0,
-  }) {
-    return Padding(
-      padding: EdgeInsets.only(left: leftPadding, bottom: bottomPadding),
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-      ),
-    );
-  }
-
-  Widget _buildMovieList(BuildContext context, List<Movie> movies) {
-    return SizedBox(
-      height: 280,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: movies.length,
-        itemBuilder: (context, index) {
-          final movie = movies[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: CardMovieWidget(
-              movie: movie,
-              onTap: () => _navigateToDetail(context, movie),
-            ),
-          );
+      body: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) => switch (state) {
+          HomeLoading() => const Center(child: CircularProgressIndicator()),
+          HomeLoaded() => _buildSections(context, state),
+          HomeError(:final message) => Center(child: Text(message)),
         },
       ),
     );
   }
 
-  void _navigateToDetail(BuildContext context, Movie movie) {
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => MovieDetailPage(movie: movie),
-      ),
+  Widget _buildSections(BuildContext context, HomeLoaded state) {
+    final sections = [
+      for (final type in MovieListType.values)
+        if (state.sections[type] case final movies? when movies.isNotEmpty)
+          (type, movies),
+    ];
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      itemCount: sections.length,
+      itemBuilder: (context, index) {
+        final (type, movies) = sections[index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Text(
+                _titleFor(type),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            MovieCarousel(
+              movies: movies,
+              onMovieTap: (movie) => MovieDetailPage.open(context, movie),
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  String _titleFor(MovieListType type) {
+    return switch (type) {
+      MovieListType.trending => CoreStrings.trendingSection,
+      MovieListType.popular => CoreStrings.popularMoviesSection,
+      MovieListType.freeToWatch => CoreStrings.freeToWatchSection,
+      MovieListType.topRated => CoreStrings.topRatedSection,
+      MovieListType.upcoming => CoreStrings.upcomingSection,
+    };
   }
 }

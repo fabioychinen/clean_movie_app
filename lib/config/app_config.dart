@@ -1,17 +1,14 @@
 class AppConfig {
-  final String tmdbReadAccessToken;
+  final String tmdbApiKey;
   final String tmdbBaseUrl;
 
-  const AppConfig({
-    required this.tmdbReadAccessToken,
-    required this.tmdbBaseUrl,
-  });
+  const AppConfig({required this.tmdbApiKey, required this.tmdbBaseUrl});
 
   factory AppConfig.fromEnvironment() {
     return AppConfig(
-      tmdbReadAccessToken: _require(
-        'TMDB_READ_ACCESS_TOKEN',
-        const String.fromEnvironment('TMDB_READ_ACCESS_TOKEN'),
+      tmdbApiKey: _require(
+        'TMDB_API_KEY',
+        const String.fromEnvironment('TMDB_API_KEY'),
       ),
       tmdbBaseUrl: _require(
         'TMDB_BASE_URL',

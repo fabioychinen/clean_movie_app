@@ -5,4 +5,6 @@ abstract final class ApiConstants {
   static const tmdbRegion = 'BR';
 
   static const requestTimeout = Duration(seconds: 10);
+
+  static const maxCastMembers = 15;
 }

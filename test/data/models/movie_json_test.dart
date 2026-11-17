@@ -13,26 +13,35 @@ void main() {
     expect(movieFromJson(tmdbMovieJson(voteAverage: 7)).voteAverage, 7.0);
   });
 
-  test('trata strings vazias da TMDB como ausentes', () {
+  test('trata strings vazias e campos nulos como ausentes', () {
     final movie = movieFromJson(
-      tmdbMovieJson(posterPath: '', releaseDate: '', overview: ''),
+      tmdbMovieJson(posterPath: '', releaseDate: null, overview: ''),
     );
 
-    expect(movie.posterPath, isNull);
-    expect(movie.releaseDate, isNull);
-    expect(movie.overview, isNull);
-  });
-
-  test('aceita campos opcionais nulos', () {
-    final movie = movieFromJson(
-      tmdbMovieJson(posterPath: null, releaseDate: null, overview: null),
+    expect(
+      movie,
+      const Movie(id: MovieId(27205), title: 'Inception', voteAverage: 8.8),
     );
-
-    expect(movie, const Movie(title: 'Inception', voteAverage: 8.8));
   });
 
-  test('lança FormatException quando falta o título', () {
-    final json = tmdbMovieJson()..remove('title');
+  test('aceita campos opcionais ausentes', () {
+    final json = tmdbMovieJson()
+      ..remove('poster_path')
+      ..remove('release_date')
+      ..remove('overview');
+
+    expect(movieFromJson(json).posterPath, isNull);
+  });
+
+  test('lança FormatException quando falta um campo obrigatório', () {
+    for (final key in ['id', 'title', 'vote_average']) {
+      final json = tmdbMovieJson()..remove(key);
+      expect(() => movieFromJson(json), throwsFormatException, reason: key);
+    }
+  });
+
+  test('lança FormatException quando um opcional tem o tipo errado', () {
+    final json = tmdbMovieJson()..['poster_path'] = 42;
 
     expect(() => movieFromJson(json), throwsFormatException);
   });
@@ -44,7 +53,13 @@ void main() {
     );
   });
 
-  test('lança FormatException quando o item não é um objeto', () {
-    expect(() => movieFromJson('não sou um filme'), throwsFormatException);
+  test('movieListFromJson exige a lista "results"', () {
+    expect(
+      movieListFromJson({
+        'results': [tmdbMovieJson()],
+      }),
+      [inception],
+    );
+    expect(() => movieListFromJson({'page': 1}), throwsFormatException);
   });
 }

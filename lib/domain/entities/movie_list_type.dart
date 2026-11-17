@@ -1,0 +1,1 @@
+enum MovieListType { trending, popular, freeToWatch, topRated, upcoming }
