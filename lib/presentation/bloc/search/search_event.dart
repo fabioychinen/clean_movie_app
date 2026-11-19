@@ -15,3 +15,7 @@ final class SearchSubmitted extends SearchEvent {
   @override
   List<Object> get props => [query];
 }
+
+final class SearchNextPageRequested extends SearchEvent {
+  const SearchNextPageRequested();
+}

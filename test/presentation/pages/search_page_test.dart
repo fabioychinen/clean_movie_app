@@ -29,7 +29,7 @@ void main() {
   testWidgets('mostra os resultados com o ano de lançamento', (tester) async {
     when(
       () => searchMovies('inception'),
-    ).thenAnswer((_) async => [inception, sparseMovie]);
+    ).thenAnswer((_) async => moviePage([inception, sparseMovie]));
 
     await pumpAndSearch(tester, 'inception');
 
@@ -39,7 +39,9 @@ void main() {
   });
 
   testWidgets('avisa quando não há resultados', (tester) async {
-    when(() => searchMovies('xyz')).thenAnswer((_) async => const []);
+    when(
+      () => searchMovies('xyz'),
+    ).thenAnswer((_) async => moviePage(const [], totalPages: 1));
 
     await pumpAndSearch(tester, 'xyz');
 

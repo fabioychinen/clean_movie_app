@@ -7,6 +7,7 @@ class Movie extends Equatable {
   final String title;
   final double voteAverage;
   final String? posterPath;
+  final String? backdropPath;
   final DateTime? releaseDate;
   final String? overview;
 
@@ -15,9 +16,12 @@ class Movie extends Equatable {
     required this.title,
     required this.voteAverage,
     this.posterPath,
+    this.backdropPath,
     this.releaseDate,
     this.overview,
   });
+
+  bool get hasRatings => voteAverage > 0;
 
   @override
   List<Object?> get props => [
@@ -25,6 +29,7 @@ class Movie extends Equatable {
     title,
     voteAverage,
     posterPath,
+    backdropPath,
     releaseDate,
     overview,
   ];

@@ -12,7 +12,7 @@ final class HomeLoading extends HomeState {
 }
 
 final class HomeLoaded extends HomeState {
-  final Map<MovieListType, List<Movie>> sections;
+  final Map<MovieListType, PaginatedMovies> sections;
 
   const HomeLoaded({required this.sections});
 

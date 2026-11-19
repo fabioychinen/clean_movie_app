@@ -1,4 +1,7 @@
 import 'package:clean_movie_app/domain/entities/movie.dart';
+import 'package:clean_movie_app/presentation/layout/fixed_line_text.dart';
+import 'package:clean_movie_app/presentation/layout/movie_card_metrics.dart';
+import 'package:clean_movie_app/presentation/theme/app_theme.dart';
 import 'package:clean_movie_app/presentation/widgets/movie_poster.dart';
 import 'package:clean_movie_app/presentation/widgets/rating_badge.dart';
 import 'package:flutter/material.dart';
@@ -11,50 +14,46 @@ class CardMovieWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final metrics = MovieCardMetrics.of(context);
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.cornerRadius),
       child: Padding(
-        padding: const EdgeInsets.all(7),
+        padding: const EdgeInsets.all(MovieCardMetrics.padding),
         child: SizedBox(
-          width: 120,
+          width: metrics.posterWidth,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPosterWithRating(),
-              const SizedBox(height: 25),
-              _buildTitle(),
+              Stack(
+                children: [
+                  MoviePoster(
+                    posterPath: movie.posterPath,
+                    height: metrics.posterHeight,
+                    width: metrics.posterWidth,
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: RatingBadge(voteAverage: movie.voteAverage),
+                  ),
+                ],
+              ),
+              const SizedBox(height: MovieCardMetrics.titleGap),
+              SizedBox(
+                height: metrics.titleHeight,
+                child: FixedLineText(
+                  movie.title,
+                  fontSize: MovieCardMetrics.titleFontSize,
+                  maxLines: MovieCardMetrics.titleMaxLines,
+                  fontWeight: FontWeight.w600,
+                  textAlign: TextAlign.start,
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPosterWithRating() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        MoviePoster(
-          posterPath: movie.posterPath,
-          height: 180,
-          width: 120,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        Positioned(
-          bottom: -20,
-          left: 8,
-          child: RatingBadge(voteAverage: movie.voteAverage),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTitle() {
-    return Text(
-      movie.title,
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 12),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }

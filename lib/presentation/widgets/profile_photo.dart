@@ -13,21 +13,23 @@ class ProfilePhoto extends StatelessWidget {
     return ClipOval(
       child: SizedBox.square(
         dimension: size,
-        child: path == null
-            ? _buildPlaceholder()
-            : Image.network(
-                ImageUrlBuilder.tmdb(path, size: 'w185'),
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _buildPlaceholder(),
-              ),
+        child:
+            path == null
+                ? _buildPlaceholder(context)
+                : Image.network(
+                  ImageUrlBuilder.tmdb(path, size: TmdbImageSize.profile),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, _, _) => _buildPlaceholder(context),
+                ),
       ),
     );
   }
 
-  Widget _buildPlaceholder() {
-    return const ColoredBox(
-      color: Colors.black12,
-      child: Icon(Icons.person, color: Colors.black38),
+  Widget _buildPlaceholder(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return ColoredBox(
+      color: colors.surfaceContainerHighest,
+      child: Icon(Icons.person_outline, color: colors.onSurfaceVariant),
     );
   }
 }

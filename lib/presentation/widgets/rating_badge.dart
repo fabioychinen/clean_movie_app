@@ -1,48 +1,60 @@
+import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+import 'package:clean_movie_app/presentation/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class RatingBadge extends StatelessWidget {
+  static const _maxTextScale = 1.3;
+
   final double voteAverage;
 
   const RatingBadge({super.key, required this.voteAverage});
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.6),
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(
-          width: 28,
-          height: 28,
-          child: CircularProgressIndicator(
-            value: voteAverage / 10,
-            backgroundColor: Colors.black12,
-            valueColor: AlwaysStoppedAnimation<Color>(_colorFor(voteAverage)),
-            strokeWidth: 3,
-          ),
-        ),
-        Text(
-          '${(voteAverage * 10).toStringAsFixed(0)}%',
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
+  static Color colorFor(double voteAverage) {
+    if (voteAverage >= 7.0) return AppColors.ratingHigh;
+    if (voteAverage >= 4.0) return AppColors.ratingMid;
+    return AppColors.ratingLow;
   }
 
-  static Color _colorFor(double voteAverage) {
-    if (voteAverage >= 7.0) return Colors.green;
-    if (voteAverage >= 4.0) return Colors.yellow;
-    return Colors.red;
+  @override
+  Widget build(BuildContext context) {
+    final hasRatings = voteAverage > 0;
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: _maxTextScale,
+      child: Semantics(
+        label:
+            hasRatings
+                ? 'Nota ${voteAverage.toStringAsFixed(1)} de 10'
+                : CoreStrings.noRatings,
+        excludeSemantics: true,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.scrim,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.star_rounded,
+                  size: 14,
+                  color:
+                      hasRatings ? colorFor(voteAverage) : AppColors.textMuted,
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  hasRatings ? voteAverage.toStringAsFixed(1) : '–',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

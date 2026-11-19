@@ -15,12 +15,13 @@ void main() {
 
   setUp(() => repository = MockMovieRepository());
 
-  test('GetMovieList devolve a lista pedida', () async {
+  test('GetMovieList pede a primeira página por padrão', () async {
+    final page = moviePage([inception]);
     when(
-      () => repository.getMovieList(MovieListType.upcoming),
-    ).thenAnswer((_) async => [inception]);
+      () => repository.getMovieList(MovieListType.upcoming, page: 1),
+    ).thenAnswer((_) async => page);
 
-    expect(await GetMovieList(repository)(MovieListType.upcoming), [inception]);
+    expect(await GetMovieList(repository)(MovieListType.upcoming), page);
   });
 
   test('GetMovieDetails devolve os detalhes do filme', () async {
@@ -34,17 +35,18 @@ void main() {
     );
   });
 
-  test('SearchMovies devolve os resultados da busca', () async {
+  test('SearchMovies repassa termo e página', () async {
+    final page = moviePage([inception], page: 2);
     when(
-      () => repository.searchMovies('matrix'),
-    ).thenAnswer((_) async => [inception]);
+      () => repository.searchMovies('matrix', page: 2),
+    ).thenAnswer((_) async => page);
 
-    expect(await SearchMovies(repository)('matrix'), [inception]);
+    expect(await SearchMovies(repository)('matrix', page: 2), page);
   });
 
   test('os casos de uso propagam MovieFetchException', () {
     when(
-      () => repository.searchMovies(any()),
+      () => repository.searchMovies(any(), page: any(named: 'page')),
     ).thenThrow(const MovieFetchException('falhou'));
 
     expect(

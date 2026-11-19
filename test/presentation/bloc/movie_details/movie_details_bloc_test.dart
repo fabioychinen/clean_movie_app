@@ -26,10 +26,11 @@ void main() {
     },
     build: buildBloc,
     act: (bloc) => bloc.add(const MovieDetailsRequested(MovieId(27205))),
-    expect: () => [
-      const MovieDetailsLoading(),
-      MovieDetailsLoaded(details: inceptionDetails),
-    ],
+    expect:
+        () => [
+          const MovieDetailsLoading(),
+          MovieDetailsLoaded(details: inceptionDetails),
+        ],
   );
 
   blocTest<MovieDetailsBloc, MovieDetailsState>(
@@ -41,9 +42,10 @@ void main() {
     },
     build: buildBloc,
     act: (bloc) => bloc.add(const MovieDetailsRequested(MovieId(27205))),
-    expect: () => [
-      const MovieDetailsLoading(),
-      const MovieDetailsError(message: CoreStrings.fetchDetailsError),
-    ],
+    expect:
+        () => [
+          const MovieDetailsLoading(),
+          const MovieDetailsError(message: CoreStrings.fetchDetailsError),
+        ],
   );
 }

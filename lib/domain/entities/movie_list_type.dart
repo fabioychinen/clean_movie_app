@@ -1,1 +1,8 @@
-enum MovieListType { trending, popular, freeToWatch, topRated, upcoming }
+enum MovieListType {
+  trending,
+  nowPlaying,
+  popular,
+  freeToWatch,
+  topRated,
+  upcoming,
+}

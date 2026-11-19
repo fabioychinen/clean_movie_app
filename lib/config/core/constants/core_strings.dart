@@ -2,16 +2,20 @@ abstract final class CoreStrings {
   static const String movieApp = 'Movie App';
   static const String movieAndSeries = 'Filmes e Séries';
 
+  static const String featuredLabel = 'EM ALTA AGORA';
+  static const String seeDetails = 'Ver detalhes';
+
   static const String trendingSection = 'Em Alta';
+  static const String nowPlayingSection = 'Em Cartaz';
   static const String popularMoviesSection = 'Os Mais Populares';
   static const String freeToWatchSection = 'Grátis Para Assistir';
   static const String topRatedSection = 'Mais Bem Avaliados';
   static const String upcomingSection = 'Em Breve';
 
-  static const String releaseDate = 'Data de Lançamento:';
   static const String synopsisTitle = 'Sinopse';
   static const String noSynopsisAvailable = 'Sinopse não disponível.';
   static const String unavailableDate = 'Data indisponível';
+  static const String noRatings = 'Sem avaliações';
 
   static const String watchTrailer = 'Assistir trailer';
   static const String whereToWatch = 'Onde assistir';
@@ -28,7 +32,20 @@ abstract final class CoreStrings {
 
   static const String search = 'Buscar';
   static const String searchHint = 'Buscar filmes';
+  static const String searchIdleHint = 'Busque filmes pelo título';
+  static const String clearSearch = 'Limpar busca';
   static const String noSearchResults = 'Nenhum filme encontrado.';
+
+  static const String about = 'Sobre';
+  static const String tmdbNotice =
+      'Este produto usa a API da TMDB, mas não é endossado nem certificado '
+      'pela TMDB.';
+  static const String tmdbNoticeOriginal =
+      'This product uses the TMDB API but is not endorsed or certified by '
+      'TMDB.';
+  static const String visitTmdb = 'Visitar themoviedb.org';
+  static const String retryLoadMore = 'Tentar carregar mais';
+  static const String retry = 'Tentar novamente';
 
   static const String fetchMoviesError = 'Falha ao carregar os filmes.';
   static const String fetchDetailsError =

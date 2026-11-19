@@ -16,12 +16,16 @@ void main() {
     repository = MovieRepositoryImpl(dataSource);
   });
 
-  test('getMovieList delega ao data source', () async {
+  test('getMovieList delega ao data source com a página', () async {
+    final page = moviePage([inception], page: 2);
     when(
-      () => dataSource.getMovieList(MovieListType.topRated),
-    ).thenAnswer((_) async => [inception]);
+      () => dataSource.getMovieList(MovieListType.topRated, page: 2),
+    ).thenAnswer((_) async => page);
 
-    expect(await repository.getMovieList(MovieListType.topRated), [inception]);
+    expect(
+      await repository.getMovieList(MovieListType.topRated, page: 2),
+      page,
+    );
   });
 
   test('getMovieDetails delega ao data source', () async {
@@ -35,11 +39,12 @@ void main() {
     );
   });
 
-  test('searchMovies delega ao data source', () async {
+  test('searchMovies delega ao data source com a página', () async {
+    final page = moviePage([inception], page: 3);
     when(
-      () => dataSource.searchMovies('inception'),
-    ).thenAnswer((_) async => [inception]);
+      () => dataSource.searchMovies('inception', page: 3),
+    ).thenAnswer((_) async => page);
 
-    expect(await repository.searchMovies('inception'), [inception]);
+    expect(await repository.searchMovies('inception', page: 3), page);
   });
 }

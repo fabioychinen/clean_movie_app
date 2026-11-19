@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:clean_movie_app/data/datasources/movie_remote_data_source.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/domain/entities/movie_list_type.dart';
+import 'package:clean_movie_app/domain/entities/movie_page.dart';
 import 'package:clean_movie_app/domain/errors/movie_fetch_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -28,9 +29,7 @@ void main() {
   });
 
   void respondWith(Object? body, {int statusCode = 200}) {
-    when(
-      () => client.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
+    when(() => client.get(any(), headers: any(named: 'headers'))).thenAnswer(
       (_) async => http.Response(
         body is String ? body : json.encode(body),
         statusCode,
@@ -50,13 +49,13 @@ void main() {
     isA<MovieFetchException>().having((e) => e.cause, 'cause', cause),
   );
 
-  final movieListBody = {
-    'results': [tmdbMovieJson()],
-  };
+  final movieListBody = tmdbMoviePageJson(results: [tmdbMovieJson()]);
+  final expectedPage = MoviePage(movies: [inception], page: 1, totalPages: 3);
 
   group('getMovieList', () {
     const expectedPaths = {
       MovieListType.trending: '/3/trending/movie/week',
+      MovieListType.nowPlaying: '/3/movie/now_playing',
       MovieListType.popular: '/3/movie/popular',
       MovieListType.freeToWatch: '/3/discover/movie',
       MovieListType.topRated: '/3/movie/top_rated',
@@ -67,7 +66,7 @@ void main() {
       test('$type chama ${expectedPaths[type]} e converte', () async {
         respondWith(movieListBody);
 
-        expect(await dataSource.getMovieList(type), [inception]);
+        expect(await dataSource.getMovieList(type, page: 1), expectedPage);
         final uri = capturedUri();
         expect(uri.path, expectedPaths[type]);
         expect(uri.queryParameters['language'], 'pt-BR');
@@ -78,13 +77,14 @@ void main() {
     test('freeToWatch filtra filmes grátis no Brasil', () async {
       respondWith(movieListBody);
 
-      await dataSource.getMovieList(MovieListType.freeToWatch);
+      await dataSource.getMovieList(MovieListType.freeToWatch, page: 1);
 
       final uri = capturedUri();
       expect(uri.queryParameters, {
         'api_key': 'test-key',
         'language': 'pt-BR',
         'region': 'BR',
+        'page': '1',
         'watch_region': 'BR',
         'with_watch_monetization_types': 'free',
         'sort_by': 'popularity.desc',
@@ -95,7 +95,7 @@ void main() {
   test('envia a chave da API na URL', () async {
     respondWith(movieListBody);
 
-    await dataSource.getMovieList(MovieListType.popular);
+    await dataSource.getMovieList(MovieListType.popular, page: 1);
 
     final uri = capturedUri();
     expect(uri.queryParameters['api_key'], 'test-key');
@@ -120,15 +120,31 @@ void main() {
   test('searchMovies envia o termo e converte', () async {
     respondWith(movieListBody);
 
-    expect(await dataSource.searchMovies('inception'), [inception]);
+    expect(await dataSource.searchMovies('inception', page: 1), expectedPage);
     final uri = capturedUri();
     expect(uri.path, '/3/search/movie');
     expect(uri.queryParameters['query'], 'inception');
   });
 
+  test('pede a página informada', () async {
+    respondWith(movieListBody);
+
+    await dataSource.getMovieList(MovieListType.popular, page: 4);
+
+    expect(capturedUri().queryParameters['page'], '4');
+  });
+
+  test('limita o total de páginas', () async {
+    respondWith(tmdbMoviePageJson(results: const [], totalPages: 500));
+
+    final page = await dataSource.getMovieList(MovieListType.popular, page: 1);
+
+    expect(page.totalPages, 20);
+  });
+
   group('falhas viram MovieFetchException', () {
-    Future<List<Movie>> fetch() =>
-        dataSource.getMovieList(MovieListType.popular);
+    Future<MoviePage> fetch() =>
+        dataSource.getMovieList(MovieListType.popular, page: 1);
 
     test('status diferente de 200', () {
       respondWith('Not Found', statusCode: 404);
@@ -149,10 +165,7 @@ void main() {
         () => client.get(any(), headers: any(named: 'headers')),
       ).thenThrow(http.ClientException('sem conexão'));
 
-      expect(
-        fetch(),
-        throwsFetchException(cause: isA<http.ClientException>()),
-      );
+      expect(fetch(), throwsFetchException(cause: isA<http.ClientException>()));
     });
 
     test('corpo que não é JSON', () {

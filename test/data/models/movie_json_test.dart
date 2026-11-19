@@ -15,7 +15,12 @@ void main() {
 
   test('trata strings vazias e campos nulos como ausentes', () {
     final movie = movieFromJson(
-      tmdbMovieJson(posterPath: '', releaseDate: null, overview: ''),
+      tmdbMovieJson(
+        posterPath: '',
+        backdropPath: null,
+        releaseDate: null,
+        overview: '',
+      ),
     );
 
     expect(
@@ -25,10 +30,11 @@ void main() {
   });
 
   test('aceita campos opcionais ausentes', () {
-    final json = tmdbMovieJson()
-      ..remove('poster_path')
-      ..remove('release_date')
-      ..remove('overview');
+    final json =
+        tmdbMovieJson()
+          ..remove('poster_path')
+          ..remove('release_date')
+          ..remove('overview');
 
     expect(movieFromJson(json).posterPath, isNull);
   });
@@ -53,13 +59,23 @@ void main() {
     );
   });
 
-  test('movieListFromJson exige a lista "results"', () {
-    expect(
-      movieListFromJson({
-        'results': [tmdbMovieJson()],
-      }),
-      [inception],
+  test('moviePageFromJson converte a página e limita o total', () {
+    final page = moviePageFromJson(
+      tmdbMoviePageJson(results: [tmdbMovieJson()], page: 2, totalPages: 500),
+      maxPages: 20,
     );
-    expect(() => movieListFromJson({'page': 1}), throwsFormatException);
+
+    expect(page, moviePage([inception], page: 2, totalPages: 20));
+  });
+
+  test('moviePageFromJson exige results, page e total_pages', () {
+    for (final key in ['results', 'page', 'total_pages']) {
+      final json = tmdbMoviePageJson(results: const [])..remove(key);
+      expect(
+        () => moviePageFromJson(json, maxPages: 20),
+        throwsFormatException,
+        reason: key,
+      );
+    }
   });
 }

@@ -8,6 +8,7 @@ import 'package:clean_movie_app/data/models/movie_json.dart';
 import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/domain/entities/movie_details.dart';
 import 'package:clean_movie_app/domain/entities/movie_list_type.dart';
+import 'package:clean_movie_app/domain/entities/movie_page.dart';
 import 'package:clean_movie_app/domain/errors/movie_fetch_exception.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,9 +25,10 @@ class MovieRemoteDataSource {
        _config = config,
        _timeout = timeout;
 
-  Future<List<Movie>> getMovieList(MovieListType type) {
+  Future<MoviePage> getMovieList(MovieListType type, {required int page}) {
     final (path, query) = switch (type) {
       MovieListType.trending => ('/trending/movie/week', _noQuery),
+      MovieListType.nowPlaying => ('/movie/now_playing', _noQuery),
       MovieListType.popular => ('/movie/popular', _noQuery),
       MovieListType.freeToWatch => (
         '/discover/movie',
@@ -39,7 +41,7 @@ class MovieRemoteDataSource {
       MovieListType.topRated => ('/movie/top_rated', _noQuery),
       MovieListType.upcoming => ('/movie/upcoming', _noQuery),
     };
-    return _get(path, movieListFromJson, query: query);
+    return _get(path, _parseMoviePage, query: {...query, 'page': '$page'});
   }
 
   Future<MovieDetails> getMovieDetails(MovieId id) {
@@ -57,9 +59,16 @@ class MovieRemoteDataSource {
     );
   }
 
-  Future<List<Movie>> searchMovies(String query) {
-    return _get('/search/movie', movieListFromJson, query: {'query': query});
+  Future<MoviePage> searchMovies(String query, {required int page}) {
+    return _get(
+      '/search/movie',
+      _parseMoviePage,
+      query: {'query': query, 'page': '$page'},
+    );
   }
+
+  static MoviePage _parseMoviePage(Object? body) =>
+      moviePageFromJson(body, maxPages: ApiConstants.maxPages);
 
   static const _noQuery = <String, String>{};
 

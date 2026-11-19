@@ -16,12 +16,13 @@ final class SearchLoading extends SearchState {
 }
 
 final class SearchLoaded extends SearchState {
-  final List<Movie> results;
+  final String query;
+  final PaginatedMovies results;
 
-  const SearchLoaded({required this.results});
+  const SearchLoaded({required this.query, required this.results});
 
   @override
-  List<Object> get props => [results];
+  List<Object> get props => [query, results];
 }
 
 final class SearchError extends SearchState {

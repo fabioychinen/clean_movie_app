@@ -7,16 +7,17 @@ MovieDetails movieDetailsFromJson(
   required String region,
   required int maxCastMembers,
 }) {
-  if (json case {
-        'genres': final List<Object?> genres,
-        'credits': {'cast': final List<Object?> cast},
-        'videos': {'results': final List<Object?> videos},
-        'watch/providers': {
-          'results': final Map<Object?, Object?> providersByRegion,
-        },
-        'recommendations': {'results': final List<Object?> recommendations},
-      } &&
-      final Map<Object?, Object?> fields) {
+  if (json
+      case {
+            'genres': final List<Object?> genres,
+            'credits': {'cast': final List<Object?> cast},
+            'videos': {'results': final List<Object?> videos},
+            'watch/providers': {
+              'results': final Map<Object?, Object?> providersByRegion,
+            },
+            'recommendations': {'results': final List<Object?> recommendations},
+          } &&
+          final Map<Object?, Object?> fields) {
     return MovieDetails(
       movie: movieFromJson(json),
       runtime: _runtimeFromJson(fields['runtime']),
@@ -47,8 +48,8 @@ String _genreFromJson(Object? json) {
 }
 
 CastMember _castMemberFromJson(Object? json) {
-  if (json case {'name': final String name} &&
-      final Map<Object?, Object?> fields) {
+  if (json
+      case {'name': final String name} && final Map<Object?, Object?> fields) {
     return CastMember(
       name: name,
       character: optionalString(fields, 'character'),
@@ -77,8 +78,8 @@ String? _trailerYoutubeKey(List<Object?> videos) {
 
 WatchProviders? _watchProvidersFromJson(Object? json) {
   if (json == null) return null;
-  if (json case {'link': final String link} &&
-      final Map<Object?, Object?> fields) {
+  if (json
+      case {'link': final String link} && final Map<Object?, Object?> fields) {
     return WatchProviders(
       link: Uri.parse(link),
       streaming: _providersFromJson(fields['flatrate']),

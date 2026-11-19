@@ -1,12 +1,17 @@
 import 'package:clean_movie_app/config/core/constants/core_strings.dart';
+import 'package:clean_movie_app/domain/entities/movie.dart';
 import 'package:clean_movie_app/domain/entities/movie_list_type.dart';
 import 'package:clean_movie_app/domain/usecases/get_movie_details.dart';
 import 'package:clean_movie_app/domain/usecases/search_movies.dart';
 import 'package:clean_movie_app/presentation/bloc/home/home_bloc.dart';
+import 'package:clean_movie_app/presentation/models/paginated_movies.dart';
+import 'package:clean_movie_app/presentation/pages/about_page.dart';
 import 'package:clean_movie_app/presentation/pages/home_page.dart';
 import 'package:clean_movie_app/presentation/pages/movie_detail_page.dart';
 import 'package:clean_movie_app/presentation/pages/search_page.dart';
 import 'package:clean_movie_app/presentation/widgets/card_movie_widget.dart';
+import 'package:clean_movie_app/presentation/widgets/featured_movie_banner.dart';
+import 'package:clean_movie_app/presentation/widgets/home_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +32,9 @@ void main() {
     ).thenAnswer((_) async => inceptionDetails);
   });
 
+  PaginatedMovies section(List<Movie> movies) =>
+      PaginatedMovies.firstPage(moviePage(movies));
+
   Future<void> pumpHome(WidgetTester tester, HomeState state) {
     when(() => bloc.state).thenReturn(state);
     return tester.pumpWidget(
@@ -45,28 +53,81 @@ void main() {
     );
   }
 
-  testWidgets('mostra o indicador durante o carregamento', (tester) async {
+  const emptyHome = HomeLoaded(sections: {});
+
+  testWidgets('mostra o skeleton durante o carregamento', (tester) async {
     await pumpHome(tester, const HomeLoading());
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(HomeSkeleton), findsOneWidget);
   });
 
-  testWidgets('mostra uma seção por lista e omite as vazias', (tester) async {
+  testWidgets('destaca o primeiro filme em alta com imagem de fundo', (
+    tester,
+  ) async {
     await pumpHome(
       tester,
       HomeLoaded(
         sections: {
-          MovieListType.trending: [inception, sparseMovie],
-          MovieListType.popular: [inception],
-          MovieListType.freeToWatch: const [],
+          MovieListType.trending: section([sparseMovie, inception]),
+        },
+      ),
+    );
+
+    final banner = tester.widget<FeaturedMovieBanner>(
+      find.byType(FeaturedMovieBanner),
+    );
+    expect(banner.movie, inception);
+
+    await tester.tap(find.text(CoreStrings.seeDetails));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MovieDetailPage), findsOneWidget);
+  });
+
+  testWidgets('erro na home oferece tentar novamente', (tester) async {
+    await pumpHome(tester, const HomeError(message: 'Deu ruim'));
+
+    await tester.tap(find.text(CoreStrings.retry));
+
+    verify(() => bloc.add(const HomeRequested())).called(1);
+  });
+
+  testWidgets('mostra uma seção por lista e omite as vazias', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpHome(
+      tester,
+      HomeLoaded(
+        sections: {
+          MovieListType.trending: section([inception, sparseMovie]),
+          MovieListType.nowPlaying: section([inception]),
+          MovieListType.freeToWatch: section(const []),
         },
       ),
     );
 
     expect(find.text(CoreStrings.trendingSection), findsOneWidget);
-    expect(find.text(CoreStrings.popularMoviesSection), findsOneWidget);
+    expect(find.text(CoreStrings.nowPlayingSection), findsOneWidget);
     expect(find.text(CoreStrings.freeToWatchSection), findsNothing);
     expect(find.byType(CardMovieWidget), findsNWidgets(3));
+  });
+
+  testWidgets('falha ao carregar mais oferece tentar de novo', (tester) async {
+    await pumpHome(
+      tester,
+      HomeLoaded(
+        sections: {
+          MovieListType.popular: section([inception]).failedToLoadMore(),
+        },
+      ),
+    );
+
+    await tester.tap(find.byTooltip(CoreStrings.retryLoadMore));
+
+    verify(
+      () => bloc.add(const HomeNextPageRequested(MovieListType.popular)),
+    ).called(1);
   });
 
   testWidgets('mostra a mensagem do estado de erro', (tester) async {
@@ -80,7 +141,7 @@ void main() {
       tester,
       HomeLoaded(
         sections: {
-          MovieListType.popular: [inception],
+          MovieListType.popular: section([inception]),
         },
       ),
     );
@@ -92,11 +153,20 @@ void main() {
   });
 
   testWidgets('o botão de busca abre a página de busca', (tester) async {
-    await pumpHome(tester, const HomeLoading());
+    await pumpHome(tester, emptyHome);
 
     await tester.tap(find.byTooltip(CoreStrings.search));
     await tester.pumpAndSettle();
 
     expect(find.byType(SearchPage), findsOneWidget);
+  });
+
+  testWidgets('o botão Sobre abre a página Sobre', (tester) async {
+    await pumpHome(tester, emptyHome);
+
+    await tester.tap(find.byTooltip(CoreStrings.about));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AboutPage), findsOneWidget);
   });
 }

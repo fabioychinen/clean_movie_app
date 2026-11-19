@@ -72,10 +72,7 @@ void main() {
       for (var i = 0; i < 30; i++) {'name': 'Ator $i'},
     ];
 
-    final details = parse(
-      tmdbMovieDetailsJson(cast: cast),
-      maxCastMembers: 15,
-    );
+    final details = parse(tmdbMovieDetailsJson(cast: cast), maxCastMembers: 15);
 
     expect(details.cast, hasLength(15));
   });

@@ -41,7 +41,7 @@ void main() {
     expect(find.text('Inception'), findsWidgets);
     expect(find.text('16/07/2010'), findsOneWidget);
     expect(find.text('A mind-bending thriller.'), findsOneWidget);
-    expect(find.text('88%'), findsOneWidget);
+    expect(find.text('8.8'), findsOneWidget);
   });
 
   testWidgets('mostra gêneros, duração, elenco, trailer e onde assistir', (
